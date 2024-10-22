@@ -6,5 +6,5 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record DeviceDTO(UUID id, String description, String address, Long maximumHourlyConsumption) implements Serializable {
+public record DeviceDTO(UUID id, String description, String address, Long maximumHourlyConsumption, UUID userId) implements Serializable {
 }

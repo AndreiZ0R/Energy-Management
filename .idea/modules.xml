@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/backend/device-management-service/device-management-service.iml" filepath="$PROJECT_DIR$/backend/device-management-service/device-management-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/project.iml" filepath="$PROJECT_DIR$/.idea/project.iml" />
     </modules>
   </component>

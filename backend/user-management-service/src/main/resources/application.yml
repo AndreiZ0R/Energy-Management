@@ -1,0 +1,26 @@
+server:
+    port: 8001
+spring:
+    application:
+        name: user-management-service
+    datasource:
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        url: jdbc:postgresql://localhost:5432/ums_db
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                default_schema: public
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: true
+
+# RabbitMQ
+rabbit:
+    exchange:
+        name: internal.exchange
+    queue:
+        name: internal.queue
+    routing:
+        key: internal.routing

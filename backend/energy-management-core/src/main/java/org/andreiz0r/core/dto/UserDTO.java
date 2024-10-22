@@ -10,5 +10,5 @@ import java.util.List;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record UserDTO(UUID id, String username, String email, Timestamp createdAt, UserRole role, List<String> deviceIds) implements Serializable {
+public record UserDTO(UUID id, String username, String email, Timestamp createdAt, UserRole role, List<UUID> deviceIds) implements Serializable {
 }

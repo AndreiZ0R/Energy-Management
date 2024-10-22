@@ -1,0 +1,26 @@
+server:
+    port: 8002
+spring:
+    application:
+        name: device-management-service
+    datasource:
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
+        url: jdbc:postgresql://localhost:5432/dms_db
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                default_schema: public
+                dialect: org.hibernate.dialect.PostgreSQLDialect
+        show-sql: true
+
+# RabbitMQ
+rabbit:
+    exchange:
+        name: internal.exchange
+    queue:
+        name: internal.queue
+    routing:
+        key: internal.routing

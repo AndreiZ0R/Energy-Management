@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.andreiz0r.core.dto.DeviceDTO;
 import org.andreiz0r.core.exception.ClientError;
 import org.andreiz0r.core.request.CreateDeviceRequest;
+import org.andreiz0r.core.request.GetDevicesByIdRequest;
 import org.andreiz0r.core.request.UpdateDeviceRequest;
 import org.andreiz0r.core.response.Response;
 import org.andreiz0r.dms.service.DeviceService;
@@ -35,6 +36,15 @@ public class DeviceController {
     @GetMapping
     public Response<List<DeviceDTO>> getAllDevices() {
         return deviceService.getAllDevices()
+                .map(Response::successResponse)
+                .orElse(Response.failureResponse(
+                        new ClientError(notFound(DeviceDTO.class)),
+                        NOT_FOUND));
+    }
+
+    @GetMapping("/ids")
+    public Response<List<DeviceDTO>> getAllDevicesById(@RequestBody final GetDevicesByIdRequest request) {
+        return deviceService.findMultipleById(request.ids())
                 .map(Response::successResponse)
                 .orElse(Response.failureResponse(
                         new ClientError(notFound(DeviceDTO.class)),

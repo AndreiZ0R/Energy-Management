@@ -1,0 +1,8 @@
+${AnsiColor.BRIGHT_MAGENTA}  _____               _            ____                  _             ____  _
+${AnsiColor.BRIGHT_MAGENTA} | ____|   _ _ __ ___| | ____ _   / ___|  ___ _ ____   _(_) ___ ___   |  _ \(_)___  ___ _____   _____ _ __ _   _
+${AnsiColor.BRIGHT_MAGENTA} |  _|| | | | '__/ _ \ |/ / _` |  \___ \ / _ \ '__\ \ / / |/ __/ _ \  | | | | / __|/ __/ _ \ \ / / _ \ '__| | | |
+${AnsiColor.BRIGHT_MAGENTA} | |__| |_| | | |  __/   < (_| |   ___) |  __/ |   \ V /| | (_|  __/  | |_| | \__ \ (_| (_) \ V /  __/ |  | |_| |
+${AnsiColor.BRIGHT_MAGENTA} |_____\__,_|_|  \___|_|\_\__,_|  |____/ \___|_|    \_/ |_|\___\___|  |____/|_|___/\___\___/ \_/ \___|_|   \__, |
+                                                                                                           |___/
+${AnsiColor.BRIGHT_YELLOW} Author: AndreiZ0R
+${AnsiColor.DEFAULT}

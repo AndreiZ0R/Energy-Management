@@ -23,6 +23,10 @@ public class DeviceService {
         return Optional.of(deviceRepository.findAll().stream().map(this::mapToDTO).toList());
     }
 
+    public Optional<List<DeviceDTO>> findMultipleById(final List<UUID> ids) {
+        return Optional.of(deviceRepository.findAllById(ids).stream().map(this::mapToDTO).toList());
+    }
+
     public Optional<DeviceDTO> findById(final UUID id) {
         return deviceRepository.findById(id).map(this::mapToDTO);
     }
@@ -51,6 +55,10 @@ public class DeviceService {
         return deviceRepository.findById(id)
                 .filter(__ -> deviceRepository.deleteByIdReturning(id) != 0)
                 .map(this::mapToDTO);
+    }
+
+    public Integer updateDevicesWithUserId(final List<UUID> ids, final UUID userId) {
+        return deviceRepository.updateDevicesWithUserId(ids, userId);
     }
 
     private DeviceDTO mapToDTO(final Device device) {

@@ -1,5 +1,9 @@
 package org.andreiz0r.core.util;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.Date;
+
 public interface Constants {
 
     String SUCCESS = "Success";
@@ -21,6 +25,24 @@ public interface Constants {
 
     interface Endpoints {
         String CONTROLLER_BASE_ENDPOINT = "/api/rest";
+    }
+
+    interface Time {
+        static Date now() {
+            return new Date();
+        }
+
+        static Date nowWithDelay(final int delay) {
+            return new Date(System.currentTimeMillis() + delay);
+        }
+
+        static Timestamp timestampNow() {
+            return Timestamp.from(Instant.now());
+        }
+
+        static java.sql.Date sqlDateNow() {
+            return new java.sql.Date(System.currentTimeMillis());
+        }
     }
 
 }

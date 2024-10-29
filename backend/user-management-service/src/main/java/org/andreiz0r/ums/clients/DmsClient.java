@@ -2,7 +2,7 @@ package org.andreiz0r.ums.clients;
 
 import org.springframework.cloud.openfeign.FeignClient;
 
-@FeignClient(value = "ENERGY-MANAGEMENT-GATEWAY", path = "user-management-service/api/rest")
+@FeignClient(value = "ENERGY-MANAGEMENT-GATEWAY", path = "dms/api/rest")
 public interface DmsClient {
 
     String DEVICES_PATH = "/devices";

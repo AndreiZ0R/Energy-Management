@@ -86,6 +86,4 @@ public class UserController {
                         new ClientError(notFound(UserDTO.class, "id", id)),
                         NOT_FOUND));
     }
-
-    // Remove device from list
 }

@@ -188,8 +188,8 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
+        <finalName>device-management-service</finalName>
     </build>
 
     <reporting>

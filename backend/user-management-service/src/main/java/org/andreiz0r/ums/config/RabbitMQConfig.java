@@ -16,18 +16,29 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    @Value("${rabbit.queue.name}")
-    private String queue;
+    @Value("${rabbit.queue.user-events}")
+    private String userEventsQueue;
+
+    @Value("${rabbit.queue.device-events}")
+    private String deviceEventsQueue;
 
     @Value("${rabbit.exchange.name}")
     private String exchange;
 
-    @Value("${rabbit.routing.key}")
-    private String routingKey;
+    @Value("${rabbit.routing.key.user-events}")
+    private String userEventsRoutingKey;
+
+    @Value("${rabbit.routing.key.device-events}")
+    private String deviceEventsRoutingKey;
 
     @Bean
-    public Queue queue() {
-        return new Queue(queue, true);
+    public Queue userEventsQueue() {
+        return new Queue(userEventsQueue, true);
+    }
+
+    @Bean
+    public Queue deviceEventsQueue() {
+        return new Queue(deviceEventsQueue, true);
     }
 
     @Bean
@@ -36,8 +47,13 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding binding() {
-        return BindingBuilder.bind(queue()).to(exchange()).with(routingKey);
+    public Binding userEventsBinding() {
+        return BindingBuilder.bind(userEventsQueue()).to(exchange()).with(userEventsRoutingKey);
+    }
+
+    @Bean
+    public Binding deviceEventsBinding() {
+        return BindingBuilder.bind(deviceEventsQueue()).to(exchange()).with(deviceEventsRoutingKey);
     }
 
     @Bean

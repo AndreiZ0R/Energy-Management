@@ -1,6 +1,5 @@
-FROM maven:3.9.9-eclipse-temurin-17
-WORKDIR /app
-COPY . /app/
-RUN mvn clean install package -DskipTests
+FROM eclipse-temurin:20-alpine
+LABEL authors="AndreiZ0R"
 EXPOSE 8001
-CMD ["mvn", "spring-boot:run"]
+ADD target/user-management-service.jar user-management-service.jar
+ENTRYPOINT ["java","-jar","/user-management-service.jar"]

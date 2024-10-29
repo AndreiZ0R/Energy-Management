@@ -1,26 +1,32 @@
 server:
-    port: 8000
+  port: 8000
 spring:
-    application:
-        name: energy-management-gateway
-    cloud:
-        gateway:
-            discovery:
-                locator:
-                    enabled: true
-                    lower-case-service-id: true
-            routes:
-                - id: ums
-                  uri: lb://user-management-service
-                  predicates:
-                      - Path=/ums/**
-                - id: dms
-                  uri: lb://device-management-service
-                  predicates:
-                      - Path=/dms/**
-            default-filters:
-                - AddRequestHeader=proxied, true
-                - StripPrefix=1
+  application:
+    name: energy-management-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: ums
+          uri: lb://user-management-service
+          predicates:
+            - Path=/ums/**
+        - id: dms
+          uri: lb://device-management-service
+          predicates:
+            - Path=/dms/**
+      default-filters:
+        - AddRequestHeader=proxied, true
+        - StripPrefix=1
 
-    main:
-        web-application-type: reactive
+  main:
+    web-application-type: reactive
+
+# Eureka Service Discovery config
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}

@@ -2,10 +2,14 @@ package org.andreiz0r.dms.service;
 
 import lombok.RequiredArgsConstructor;
 import org.andreiz0r.core.dto.DeviceDTO;
+import org.andreiz0r.core.dto.DeviceDeletedDTO;
+import org.andreiz0r.core.enums.TracedService;
+import org.andreiz0r.core.event.DeviceDeletedEvent;
 import org.andreiz0r.core.mapper.Mapper;
 import org.andreiz0r.core.request.CreateDeviceRequest;
 import org.andreiz0r.core.request.UpdateDeviceRequest;
 import org.andreiz0r.dms.entity.Device;
+import org.andreiz0r.dms.producer.RabbitProducer;
 import org.andreiz0r.dms.repository.DeviceRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +22,7 @@ import java.util.UUID;
 public class DeviceService {
 
     private final DeviceRepository deviceRepository;
+    private final RabbitProducer rabbitProducer;
 
     public Optional<List<DeviceDTO>> getAllDevices() {
         return Optional.of(deviceRepository.findAll().stream().map(this::mapToDTO).toList());
@@ -53,7 +58,17 @@ public class DeviceService {
 
     public Optional<DeviceDTO> deleteById(final UUID id) {
         return deviceRepository.findById(id)
-                .filter(__ -> deviceRepository.deleteByIdReturning(id) != 0)
+                .filter(device -> {
+                    UUID userId = device.getUserId();
+                    boolean deviceDeleted = deviceRepository.deleteByIdReturning(id) != 0;
+
+                    if (deviceDeleted) {
+                        DeviceDeletedDTO deviceDeletedDTO = new DeviceDeletedDTO(userId, id);
+                        rabbitProducer.produce(new DeviceDeletedEvent(deviceDeletedDTO, TracedService.DMS));
+                    }
+
+                    return deviceDeleted;
+                })
                 .map(this::mapToDTO);
     }
 

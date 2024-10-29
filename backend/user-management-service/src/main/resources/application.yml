@@ -1,26 +1,39 @@
 server:
-    port: 8001
+  port: 8001
 spring:
-    application:
-        name: user-management-service
-    datasource:
-        username: ${DB_USERNAME}
-        password: ${DB_PASSWORD}
-        url: jdbc:postgresql://localhost:5432/ums_db
-    jpa:
-        hibernate:
-            ddl-auto: update
-        properties:
-            hibernate:
-                default_schema: public
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-        show-sql: true
+  application:
+    name: user-management-service
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/ums_db
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: public
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+
+# Eureka Service Discovery config
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
 
 # RabbitMQ
 rabbit:
-    exchange:
-        name: internal.exchange
-    queue:
-        name: internal.queue
-    routing:
-        key: internal.routing
+  exchange:
+    name: internal.exchange
+  queue:
+    user-events: internal.user.events
+    device-events: internal.device.events
+  routing:
+    key:
+      user-events: internal.user.routing
+      device-events: internal.device.routing
+
+jsonWebToken: ae5cb0017eb75df7043c76aec88cd2082d1ada09c5bb506d1596331227d89021d0461c2f981e01bc196fad8db08f61b6f4538bfb56587a3b1272808a9e6639ce73f19f9bc75f184c8844ab6c27be478a49979a32fa0a04e4fe197e18087e20b415ec19d47c07a15cbc5cae3563d225a6dc9e041a0b4a0f2b7b801b7099e94b24d396761ea66485f054df804e4a2f0b502b2dd6f04eecf2784479df4fb70db1a918bdfab11b4f016683af46487225b93c749cf8276a49bf485c886df3f436ba5a5865069413a945c58dfb173ef59a890b5a7bfceae11a93d543916bdfd05611e1362db2dc576ddaf6e11fcddba8c959d444c3dee12fd8378871234fa0b476657d

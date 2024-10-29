@@ -1,26 +1,37 @@
 server:
-    port: 8002
+  port: 8002
 spring:
-    application:
-        name: device-management-service
-    datasource:
-        username: ${DB_USERNAME}
-        password: ${DB_PASSWORD}
-        url: jdbc:postgresql://localhost:5432/dms_db
-    jpa:
-        hibernate:
-            ddl-auto: update
-        properties:
-            hibernate:
-                default_schema: public
-                dialect: org.hibernate.dialect.PostgreSQLDialect
-        show-sql: true
+  application:
+    name: device-management-service
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/dms_db
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: public
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+
+# Eureka Service Discovery config
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
 
 # RabbitMQ
 rabbit:
-    exchange:
-        name: internal.exchange
-    queue:
-        name: internal.queue
-    routing:
-        key: internal.routing
+  exchange:
+    name: internal.exchange
+  queue:
+    user-events: internal.user.events
+    device-events: internal.device.events
+  routing:
+    key:
+      user-events: internal.user.routing
+      device-events: internal.device.routing

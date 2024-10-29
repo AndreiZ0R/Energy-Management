@@ -25,4 +25,4 @@ public abstract class AbstractEvent<T> implements Serializable {
         this.emitterService = emitterService;
     }
 }
-// Todo: Apect for logging, security, dockerize, also redis for rate limiting on gateway + circuitbreaker
+// Todo: Security, also redis for rate limiting on gateway + circuitbreaker

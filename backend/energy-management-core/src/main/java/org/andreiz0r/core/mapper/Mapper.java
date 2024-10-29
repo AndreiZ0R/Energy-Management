@@ -1,5 +1,6 @@
 package org.andreiz0r.core.mapper;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.andreiz0r.core.exception.ClientException;
@@ -21,6 +22,14 @@ public class Mapper {
         try {
             return objectMapper.convertValue(object, clazz);
         } catch (IllegalArgumentException e) {
+            throw new ClientException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public static String writeValueAsString(final Object object) {
+        try {
+            return objectMapper.writeValueAsString(object);
+        } catch (JsonProcessingException e) {
             throw new ClientException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

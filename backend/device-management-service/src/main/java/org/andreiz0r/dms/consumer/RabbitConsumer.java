@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Service
-@RabbitListener(queues = {"${rabbit.queue.name}"})
+@RabbitListener(queues = {"${rabbit.queue.user-events}"})
 @RequiredArgsConstructor
 @Slf4j
 public class RabbitConsumer {

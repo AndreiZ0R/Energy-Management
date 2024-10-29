@@ -21,6 +21,11 @@ public interface Constants {
         static String failedToSave(final Class<?> clazz) {
             return "Could not save " + clazz.getSimpleName();
         }
+
+        String REGISTER_FAILED = "Failed to register";
+        String LOGIN_FAILED = "Failed to login";
+        String BAD_TOKEN = "User must provide a valid token";
+        String ACCESS_DENIED = "Access denied, need higher privileges";
     }
 
     interface Endpoints {
@@ -28,6 +33,11 @@ public interface Constants {
     }
 
     interface Time {
+        int SECOND = 1000;
+        int MINUTE = 60 * SECOND;
+        int HOUR = 60 * MINUTE;
+        int DEFAULT_JWT_EXPIRY = 24 * HOUR;
+
         static Date now() {
             return new Date();
         }
@@ -43,6 +53,18 @@ public interface Constants {
         static java.sql.Date sqlDateNow() {
             return new java.sql.Date(System.currentTimeMillis());
         }
+    }
+
+    interface JwtClaims {
+        String ID = "id";
+        String USERNAME = "username";
+        String ROLE = "role";
+    }
+
+    interface Headers {
+        String AUTHORIZATION = "Authorization";
+        String BEARER = "Bearer ";
+        String APPLICATION_JSON = "application/json";
     }
 
 }

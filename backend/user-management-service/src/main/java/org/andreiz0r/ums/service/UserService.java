@@ -1,6 +1,7 @@
 package org.andreiz0r.ums.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.andreiz0r.core.dto.UpdateDeviceIdsDTO;
 import org.andreiz0r.core.dto.UserDTO;
 import org.andreiz0r.core.enums.TracedService;
@@ -13,8 +14,7 @@ import org.andreiz0r.core.util.Constants.Time;
 import org.andreiz0r.ums.entity.User;
 import org.andreiz0r.ums.producer.RabbitProducer;
 import org.andreiz0r.ums.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,10 +23,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
-
-    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final RabbitProducer rabbitProducer;
 
     public Optional<List<UserDTO>> getUsers() {
@@ -46,7 +46,7 @@ public class UserService {
                 User.builder()
                         .username(request.username())
                         .email(request.email())
-                        .password(request.password())
+                        .password(passwordEncoder.encode(request.password()))
                         .createdAt(Time.timestampNow())
                         .role(UserRole.valueOf(request.role()))
                         .deviceIds(request.deviceIds())
@@ -80,6 +80,10 @@ public class UserService {
                     return userDeleted;
                 })
                 .map(this::mapToDTO);
+    }
+
+    public void deleteDeviceFromUser(final UUID userId, final UUID deviceId) {
+        userRepository.deleteDeviceFromUser(userId, deviceId);
     }
 
     private UserDTO mapToDTO(final User user) {

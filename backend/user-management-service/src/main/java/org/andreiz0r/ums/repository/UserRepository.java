@@ -20,4 +20,9 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @Query(value = "select u from User u where u.username=:username")
     Optional<User> findByUsername(final String username);
+
+    @Transactional
+    @Modifying
+    @Query(value = "DELETE FROM user_device_ids WHERE user_id=:userId AND device_ids=:deviceId", nativeQuery = true)
+    void deleteDeviceFromUser(final UUID userId, final UUID deviceId);
 }

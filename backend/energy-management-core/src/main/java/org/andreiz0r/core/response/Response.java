@@ -1,8 +1,10 @@
 package org.andreiz0r.core.response;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.andreiz0r.core.exception.ClientError;
 import org.andreiz0r.core.mapper.Mapper;
@@ -29,6 +31,15 @@ public class Response<T> extends ResponseEntity<Object> implements Serializable 
     private final String message;
     private final HttpStatus status;
     private final HttpHeaders headers;
+
+    @JsonCreator
+    public Response(final Map<String, Object> body, final String message, final HttpStatus status, final HttpHeaders headers) {
+        super(body, headers, status);
+        this.body = body;
+        this.message = message;
+        this.status = status;
+        this.headers = headers;
+    }
 
     private Response(final Builder<T> builder) {
         super(builder.body, builder.headers, builder.status);

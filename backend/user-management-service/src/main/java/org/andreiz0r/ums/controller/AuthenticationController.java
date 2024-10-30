@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import static org.andreiz0r.core.util.Constants.Headers.AUTHORIZATION;
-import static org.andreiz0r.core.util.Constants.Headers.BEARER;
+import static org.andreiz0r.core.util.Constants.ReturnMessages.BAD_TOKEN;
 import static org.andreiz0r.core.util.Constants.ReturnMessages.LOGIN_FAILED;
 import static org.andreiz0r.core.util.Constants.ReturnMessages.REGISTER_FAILED;
 import static org.andreiz0r.ums.util.Constants.Paths.AUTH_CONTROLLER_ENDPOINT;
@@ -26,7 +25,6 @@ public class AuthenticationController {
 
     private final AuthenticationService authService;
 
-    // Todo:
     @PostMapping("/register")
     private Response<AuthenticationResponse> register(@RequestBody final CreateUserRequest request) {
         return authService.register(request)
@@ -34,18 +32,20 @@ public class AuthenticationController {
                 .orElse(Response.failureResponse(new ClientError(REGISTER_FAILED), HttpStatus.BAD_REQUEST));
     }
 
-    // Todo:
     @PostMapping("/authenticate")
     private Response<AuthenticationResponse> authenticate(@RequestBody final AuthenticationRequest request) {
         return authService.authenticate(request)
-                .map(authResponse -> Response.successResponse(authResponse, AUTHORIZATION, BEARER + authResponse.token()))
+                .map(Response::successResponse)
                 .orElse(Response.failureResponse(new ClientError(LOGIN_FAILED), HttpStatus.UNAUTHORIZED));
     }
 
-//    @GetMapping("/refresh")
-//    public Response refreshToken(@RequestHeader(SESSION_ID_HEADER) final UUID sessionId) {
-//        return service.refreshJwtToken(sessionId)
-//                .map(this::successResponse)
-//                .orElse(failureResponse(ReturnMessages.notFound(UserSession.class), HttpStatus.NOT_FOUND));
-//    }
+    @PostMapping("/validate")
+    private Response<String> validateToken(@RequestBody final String token) {
+        return authService.isValidToken(token) ?
+               Response.successResponse(token) :
+               Response.failureResponse(new ClientError(BAD_TOKEN), HttpStatus.UNAUTHORIZED);
+    }
+
+    // Todo: Sessions, /logout, like breddit
+    // also on devices, create filter to get userRole and see if it's allowed for the given path
 }

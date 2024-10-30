@@ -23,8 +23,10 @@ import static org.andreiz0r.core.util.Constants.Headers.BEARER;
 public class JwtUtils {
     private final String secretKey;
 
+    // Todo: CHECK THESE FUCKING METHODS + GATEWAY fuck
+
     public Optional<UUID> extractUserId(final String token) {
-        return extractClaim(token, claims -> claims.get(JwtClaims.ID, UUID.class));
+        return extractClaim(token, claims -> claims.get(JwtClaims.ID, String.class)).map(UUID::fromString);
     }
 
     public Optional<String> extractUsername(final String token) {
@@ -32,7 +34,7 @@ public class JwtUtils {
     }
 
     public Optional<UserRole> extractRole(final String token) {
-        return extractClaim(token, claims -> claims.get(JwtClaims.ROLE, UserRole.class));
+        return extractClaim(token, claims -> claims.get(JwtClaims.ROLE, String.class)).map(UserRole::valueOf);
     }
 
     private Optional<Date> extractExpiration(final String token) {

@@ -2,10 +2,9 @@ package org.andreiz0r.ums.clients;
 
 import org.springframework.cloud.openfeign.FeignClient;
 
-@FeignClient(value = "ENERGY-MANAGEMENT-GATEWAY", path = "dms/api/rest")
+@FeignClient(value = "ENERGY-MANAGEMENT-GATEWAY", path = "/api/rest/auth")
 public interface DmsClient {
 
-    String DEVICES_PATH = "/devices";
 //
 //    @PatchMapping(DEVICES_PATH)
 //    Response<DeviceDTO> updateDevice(@RequestBody final UpdateDeviceRequest request);

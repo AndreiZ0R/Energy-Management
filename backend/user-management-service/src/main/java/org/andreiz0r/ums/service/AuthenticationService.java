@@ -27,6 +27,13 @@ public class AuthenticationService {
                 .map(this::mapToAuthenticationResponse);
     }
 
+    public boolean isValidToken(final String token) {
+        return jwtUtils.extractUserId(token)
+                .flatMap(userService::findById)
+                .map(user -> jwtUtils.isValidToken(token, user.id(), user.username(), user.role()))
+                .orElse(false);
+    }
+
     private AuthenticationResponse mapToAuthenticationResponse(final UserDTO userDTO) {
         return new AuthenticationResponse(
                 userDTO,

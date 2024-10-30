@@ -34,4 +34,12 @@ public class Mapper {
         }
     }
 
+    public static byte[] writeValueAsBytes(final Object object) {
+        try {
+            return objectMapper.writeValueAsBytes(object);
+        } catch (JsonProcessingException e) {
+            throw new ClientException(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

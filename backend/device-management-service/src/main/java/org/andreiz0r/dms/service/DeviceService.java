@@ -28,8 +28,9 @@ public class DeviceService {
         return Optional.of(deviceRepository.findAll().stream().map(this::mapToDTO).toList());
     }
 
-    public Optional<List<DeviceDTO>> findMultipleById(final List<UUID> ids) {
-        return Optional.of(deviceRepository.findAllById(ids).stream().map(this::mapToDTO).toList());
+    public Optional<List<DeviceDTO>> findMultipleById(final List<String> ids) {
+        List<UUID> uuids = ids.stream().map(UUID::fromString).toList();
+        return Optional.of(deviceRepository.findAllById(uuids).stream().map(this::mapToDTO).toList());
     }
 
     public Optional<DeviceDTO> findById(final UUID id) {

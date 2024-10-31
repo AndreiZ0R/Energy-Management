@@ -1,6 +1,6 @@
 import {AuthState, selectAuthState} from "../redux/slices";
 import {useSelector} from "react-redux";
-import {useEffect} from "react";
+import {ChangeEvent, FormEvent, useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {AppRoutes} from "../utils/constants.ts";
 import {
@@ -20,6 +20,8 @@ import {formatDaysHours} from "../utils/date-format.ts";
 import {IoMdAdd} from "react-icons/io";
 import {FaRegTrashAlt} from "react-icons/fa";
 import {TbEdit} from "react-icons/tb";
+import Modal from 'react-modal';
+import {CreateDeviceRequest, CreateUserRequest, UpdateDeviceRequest, UpdateUserRequest} from "../models/transfer.ts";
 
 export default function ManageUsersPage() {
    const authState: AuthState = useSelector(selectAuthState);
@@ -35,7 +37,19 @@ export default function ManageUsersPage() {
    const [updateDevice] = useUpdateDeviceMutation();
    const [deleteDevice] = useDeleteDeviceMutation();
 
-   // Todo: use react-hook-form and zod
+   // TODO: trash, remake after
+   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
+   const [whatForm, setWhatForm] = useState<string>("updateUser");
+   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
+
+
+   useEffect(() => {
+      if (users)
+         setSelectedUser(users.payload[0]);
+   }, [users]);
+
+   // end of trash
 
    useEffect(() => {
       if (authState.user?.role !== "Manager") {
@@ -44,9 +58,15 @@ export default function ManageUsersPage() {
    }, [authState, navigate]);
 
    const onAddUser = () => {
+      setWhatForm("createUser");
+      setSelectedUser(null);
+      setModalIsOpen(true);
    }
 
    const onUpdateUser = (user: User) => {
+      setWhatForm("updateUser");
+      setSelectedUser(user);
+      setModalIsOpen(true);
    }
 
    const onDeleteUser = (user: User) => {
@@ -55,13 +75,36 @@ export default function ManageUsersPage() {
 
 
    const onAddDevice = () => {
+      setWhatForm("createDevice");
+      setSelectedDevice(null);
+      setModalIsOpen(true);
    }
 
    const onUpdateDevice = (device: Device) => {
+      setWhatForm("updateDevice");
+      setSelectedDevice(device);
+      setModalIsOpen(true);
    }
 
    const onDeleteDevice = (device: Device) => {
       deleteDevice(device.id);
+   }
+
+   function closeModal() {
+      setModalIsOpen(false);
+   }
+
+   const getForm = () => {
+      switch (whatForm) {
+         case "updateUser":
+            return <EditUser selectedUser={selectedUser} onSave={updateUser}/>
+         case "createUser":
+            return <CreateUserForm onSubmit={createUser}/>
+         case "updateDevice":
+            return <UpdateDeviceForm selectedDevice={selectedDevice} onSave={updateDevice}/>
+         case "createDevice":
+            return <CreateDeviceForm onSubmit={createDevice}/>
+      }
    }
 
    return (
@@ -75,7 +118,7 @@ export default function ManageUsersPage() {
             </div>
             <section className="grid grid-cols-3 gap-5 mt-5">
                {users?.payload.map(user =>
-                  <UserCard user={user} onUpdate={() => onUpdateUser(user)} onDelete={() => onDeleteUser(user)}/>
+                  <UserCard user={user} onUpdate={() => onUpdateUser(user)} onDelete={() => onDeleteUser(user)} key={user.id}/>
                )}
             </section>
          </div>
@@ -90,10 +133,22 @@ export default function ManageUsersPage() {
             </div>
             <section className="grid grid-cols-3 gap-5 mt-5">
                {devices?.payload.map(device =>
-                  <DeviceCard device={device} onUpdate={() => onUpdateDevice(device)} onDelete={() => onDeleteDevice(device)}/>
+                  <DeviceCard device={device} onUpdate={() => onUpdateDevice(device)} onDelete={() => onDeleteDevice(device)} key={device.id}/>
                )}
             </section>
          </div>
+
+         <Modal
+            isOpen={modalIsOpen}
+            contentLabel="modal"
+         >
+            <div>
+               {getForm()}
+               <button onClick={closeModal}>close</button>
+            </div>
+
+
+         </Modal>
 
       </div>
    )
@@ -185,3 +240,314 @@ function UserCard({user, onUpdate, onDelete}: UserCardProps) {
 
    )
 }
+
+// Todo: garbage need to remove
+
+interface EditUserProps {
+   selectedUser: User | null;
+   onSave: (user: UpdateUserRequest) => void;
+}
+
+const EditUser: React.FC<EditUserProps> = ({selectedUser, onSave}) => {
+   const [updateUserRequest, setUpdateUserRequest] = useState<UpdateUserRequest>({
+      id: "",
+      username: '',
+      email: '',
+      role: 'User',
+      deviceIds: []
+   });
+
+   useEffect(() => {
+      if (selectedUser)
+         setUpdateUserRequest({...selectedUser});
+   }, [selectedUser]);
+
+   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const {name, value} = e.target;
+      setUpdateUserRequest((prevUser) => ({
+         ...prevUser,
+         [name]: name === 'deviceIds' ? value.split(',') : value
+      }));
+   };
+
+   const handleSubmit = (e: FormEvent) => {
+      e.preventDefault();
+      onSave(updateUserRequest);
+   };
+
+   return (
+      <form onSubmit={handleSubmit}>
+         <div>
+            <label>Username:</label>
+            <input
+               type="text"
+               name="username"
+               value={updateUserRequest.username}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Email:</label>
+            <input
+               type="email"
+               name="email"
+               value={updateUserRequest.email}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Role:</label>
+            <select name="role" value={updateUserRequest.role} onChange={handleChange} required>
+               <option value="User">User</option>
+               <option value="Manager">Manager</option>
+            </select>
+         </div>
+
+         <div>
+            <label>Device IDs (comma-separated):</label>
+            <input
+               type="text"
+               name="deviceIds"
+               value={""}
+               onChange={handleChange}
+            />
+         </div>
+
+         <button type="submit">Save</button>
+      </form>
+   );
+};
+
+interface CreateUserFormProps {
+   onSubmit: (newUser: CreateUserRequest) => void;
+}
+
+const CreateUserForm: React.FC<CreateUserFormProps> = ({onSubmit}) => {
+   const [formData, setFormData] = useState<CreateUserRequest>({
+      username: '',
+      email: '',
+      password: '',
+      role: 'User',
+      deviceIds: []
+   });
+
+   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const {name, value} = e.target;
+      setFormData((prevData) => ({
+         ...prevData,
+         [name]: name === 'deviceIds' ? value.split(',') : value
+      }));
+   };
+
+   const handleSubmit = (e: FormEvent) => {
+      e.preventDefault();
+      onSubmit(formData);
+   };
+
+   return (
+      <form onSubmit={handleSubmit}>
+         <div>
+            <label>Username:</label>
+            <input
+               type="text"
+               name="username"
+               value={formData.username}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Email:</label>
+            <input
+               type="email"
+               name="email"
+               value={formData.email}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Password:</label>
+            <input
+               type="password"
+               name="password"
+               value={formData.password}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Role:</label>
+            <select name="role" value={formData.role} onChange={handleChange} required>
+               <option value="User">User</option>
+               <option value="Manager">Manager</option>
+            </select>
+         </div>
+
+         <div>
+            <label>Device IDs (comma-separated):</label>
+            <input
+               type="text"
+               name="deviceIds"
+               value={formData.deviceIds.join(',')}
+               onChange={handleChange}
+            />
+         </div>
+
+         <button type="submit">Create User</button>
+      </form>
+   );
+};
+
+interface UpdateDeviceFormProps {
+   selectedDevice: UpdateDeviceRequest | null;
+   onSave: (device: UpdateDeviceRequest) => void;
+}
+
+const UpdateDeviceForm: React.FC<UpdateDeviceFormProps> = ({selectedDevice, onSave}) => {
+   const [deviceData, setDeviceData] = useState<UpdateDeviceRequest>({
+      id: '',
+      description: '',
+      address: '',
+      maximumHourlyConsumption: 0,
+      userId: ''
+   });
+
+   useEffect(() => {
+      if (selectedDevice)
+         setDeviceData(selectedDevice);
+   }, [selectedDevice]);
+
+   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const {name, value} = e.target;
+      setDeviceData((prevData) => ({
+         ...prevData,
+         [name]: name === 'maximumHourlyConsumption' ? Number(value) : value
+      }));
+   };
+
+   const handleSubmit = (e: FormEvent) => {
+      e.preventDefault();
+      onSave(deviceData);
+   };
+
+   return (
+      <form onSubmit={handleSubmit}>
+         <div>
+            <label>Description:</label>
+            <input
+               type="text"
+               name="description"
+               value={deviceData.description}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Address:</label>
+            <input
+               type="text"
+               name="address"
+               value={deviceData.address}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Maximum Hourly Consumption:</label>
+            <input
+               type="number"
+               name="maximumHourlyConsumption"
+               value={deviceData.maximumHourlyConsumption}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>User ID:</label>
+            <input
+               type="text"
+               name="userId"
+               value={deviceData.userId}
+               onChange={handleChange}
+            />
+         </div>
+
+         <button type="submit">Save Device</button>
+      </form>
+   );
+};
+
+interface CreateDeviceFormProps {
+   onSubmit: (newDevice: CreateDeviceRequest) => void;
+}
+
+const CreateDeviceForm: React.FC<CreateDeviceFormProps> = ({onSubmit}) => {
+   const [formData, setFormData] = useState<CreateDeviceRequest>({
+      description: '',
+      address: '',
+      maximumHourlyConsumption: 0
+   });
+
+   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+      const {name, value} = e.target;
+      setFormData((prevData) => ({
+         ...prevData,
+         [name]: name === 'maximumHourlyConsumption' ? Number(value) : value
+      }));
+   };
+
+   const handleSubmit = (e: FormEvent) => {
+      e.preventDefault();
+      onSubmit(formData);
+   };
+
+   return (
+      <form onSubmit={handleSubmit}>
+         <div>
+            <label>Description:</label>
+            <input
+               type="text"
+               name="description"
+               value={formData.description}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Address:</label>
+            <input
+               type="text"
+               name="address"
+               value={formData.address}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <div>
+            <label>Maximum Hourly Consumption:</label>
+            <input
+               type="number"
+               name="maximumHourlyConsumption"
+               value={formData.maximumHourlyConsumption}
+               onChange={handleChange}
+               required
+            />
+         </div>
+
+         <button type="submit">Create Device</button>
+      </form>
+   );
+};

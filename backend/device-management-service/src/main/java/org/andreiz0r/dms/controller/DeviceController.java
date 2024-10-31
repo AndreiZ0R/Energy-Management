@@ -42,7 +42,7 @@ public class DeviceController {
                         NOT_FOUND));
     }
 
-    @GetMapping("/ids")
+    @PostMapping("/ids")
     public Response<List<DeviceDTO>> getAllDevicesById(@RequestBody final GetDevicesByIdRequest request) {
         return deviceService.findMultipleById(request.ids())
                 .map(Response::successResponse)

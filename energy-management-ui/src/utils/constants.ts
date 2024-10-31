@@ -27,11 +27,12 @@ export const HttpMethods = {
    DELETE: "DELETE",
 }
 
+// const baseUrl: string = import.meta.env.API_URL ?? "http://localhost:8000";
 export const Endpoints = {
-   base: "http://localhost:8000",
-   auth: "/ums/api/rest/auth",
-   devices: "/dms/api/rest/devices",
-   users: "/ums/api/rest/users",
+   base: "/api",
+   auth: "/ums/rest/auth",
+   devices: "/dms/rest/devices",
+   users: "/ums/rest/users",
 }
 
 export enum ThemeType {

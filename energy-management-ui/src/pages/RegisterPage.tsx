@@ -68,7 +68,7 @@ export default function RegisterPage() {
       register: registerFirstForm,
       handleSubmit: handleSubmitFirstForm,
       // setError: setErrorFirstForm,
-      formState: {errors: firstFormErrors}
+      formState: {errors: firstFormErrors},
    } = useForm<FirstStepFields>({
       resolver: zodResolver(firstStepSchema),
    });

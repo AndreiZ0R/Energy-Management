@@ -65,7 +65,7 @@ public class AuthFilter implements GlobalFilter, Ordered {
             String token = extractTokenFromHeader(authHeader);
             restClient.build()
                     .post()
-                    .uri("http://user-management-service/api/rest/auth/validate")
+                    .uri("http://user-management-service/rest/auth/validate")
                     .body(token)
                     .retrieve()
                     .toBodilessEntity();

@@ -134,6 +134,31 @@ services:
       - services-net
     restart: unless-stopped
 
+# ----------- Frontend -----------
+  frontend:
+    build:
+      context: ./energy-management-ui
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - './energy-management-ui/src:/app/src'
+#      - './data:/app/data'
+    depends_on:
+      eureka-sd:
+        condition: service_healthy
+      api-gateway:
+        condition: service_started
+      ums:
+        condition: service_started
+      dms:
+        condition: service_started
+    environment:
+      API_URL: http://energy-management-gateway:8000
+    networks:
+      - services-net
+
 # ----------- Networking -----------
 networks:
   services-net:
@@ -143,4 +168,5 @@ networks:
 volumes:
   ums_db:
   dms_db:
-# Todo: nginx reverse proxy and gateway security + FE
+
+# Todo: nginx reverse proxy

@@ -29,7 +29,7 @@ public interface Constants {
     }
 
     interface Endpoints {
-        String CONTROLLER_BASE_ENDPOINT = "/api/rest";
+        String CONTROLLER_BASE_ENDPOINT = "/rest";
     }
 
     interface Time {

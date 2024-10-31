@@ -8,6 +8,7 @@ import org.andreiz0r.core.response.AuthenticationResponse;
 import org.andreiz0r.core.response.Response;
 import org.andreiz0r.ums.service.AuthenticationService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -42,9 +43,9 @@ public class DeviceController {
                         NOT_FOUND));
     }
 
-    @PostMapping("/ids")
-    public Response<List<DeviceDTO>> getAllDevicesById(@RequestBody final GetDevicesByIdRequest request) {
-        return deviceService.findMultipleById(request.ids())
+    @GetMapping("/by-ids")
+    public Response<List<DeviceDTO>> getAllDevicesById(@RequestParam final List<String> ids) {
+        return deviceService.findMultipleById(ids)
                 .map(Response::successResponse)
                 .orElse(Response.failureResponse(
                         new ClientError(notFound(DeviceDTO.class)),

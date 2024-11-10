@@ -23,8 +23,6 @@ import static org.andreiz0r.core.util.Constants.Headers.BEARER;
 public class JwtUtils {
     private final String secretKey;
 
-    // Todo: CHECK THESE FUCKING METHODS + GATEWAY fuck
-
     public Optional<UUID> extractUserId(final String token) {
         return extractClaim(token, claims -> claims.get(JwtClaims.ID, String.class)).map(UUID::fromString);
     }

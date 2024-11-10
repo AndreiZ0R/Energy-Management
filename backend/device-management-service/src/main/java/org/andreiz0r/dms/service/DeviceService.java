@@ -57,6 +57,7 @@ public class DeviceService {
                 });
     }
 
+    // Todo: send the event in case of an update, so there are no 2 users with the same device/s!
     public Optional<DeviceDTO> deleteById(final UUID id) {
         return deviceRepository.findById(id)
                 .filter(device -> {

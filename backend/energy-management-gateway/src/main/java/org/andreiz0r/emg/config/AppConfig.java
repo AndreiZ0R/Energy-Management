@@ -1,5 +1,6 @@
 package org.andreiz0r.emg.config;
 
+import org.andreiz0r.core.util.JwtUtils;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,5 +18,10 @@ public class AppConfig {
     @Bean
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         return new MappingJackson2HttpMessageConverter();
+    }
+
+    @Bean
+    public JwtUtils jwtUtils(){
+        return new JwtUtils(null);
     }
 }

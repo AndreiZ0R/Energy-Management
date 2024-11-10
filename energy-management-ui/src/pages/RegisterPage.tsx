@@ -8,15 +8,13 @@ import {MdDone, MdErrorOutline} from "react-icons/md";
 import {useRegisterMutation} from "../redux/api.ts";
 import {useDispatch} from "react-redux";
 import {startSession} from "../redux/slices";
-import {Renderable, Toast, toast, Toaster, ValueFunction} from "react-hot-toast";
+import {toast, Toaster} from "react-hot-toast";
 import {errorToastOptions} from "../utils/toast.tsx";
 import {AuthenticationResponse, UserRole} from "../models/entities.ts";
 import {Response} from "../models/transfer.ts";
-import Stepper from "../components/Stepper/Stepper.tsx";
-import InputField from "../components/InputField/InputField.tsx";
-import Button from "../components/Button/Button.tsx";
-import {ButtonType} from "../components";
+import {Button, ButtonType, InputField, Stepper} from "../components";
 import illustration from "../assets/register_illustration.png";
+import {extractErrorMessage} from "../utils/errors-helper.ts";
 
 type RegisterUser = {
    username: string;
@@ -57,7 +55,7 @@ export default function RegisterPage() {
       password: "",
       confirmPassword: "",
       email: "",
-      role: "User",
+      role: UserRole.USER,
    });
    const [passwordRequirements, setPasswordRequirements] = useState({
       minCharacters: false,
@@ -98,8 +96,8 @@ export default function RegisterPage() {
             dispatch(startSession(response.payload));
             navigate(AppRoutes.HOME);
          })
-         .catch((error: { message: Renderable | ValueFunction<Renderable, Toast>; }) => {
-            toast.error(error.message, errorToastOptions())
+         .catch((response: Response<AuthenticationResponse>) => {
+            toast.error(extractErrorMessage(response.errors), errorToastOptions())
          });
    }
 

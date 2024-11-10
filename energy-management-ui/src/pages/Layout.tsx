@@ -6,7 +6,6 @@ import {useSelector} from "react-redux";
 export default function Layout() {
    const authState: AuthState = useSelector(selectAuthState);
 
-
    return (
       <div className="flex flex-row h-screen w-full">
          {authState.loggedIn &&

@@ -14,42 +14,34 @@ import {
    useUpdateUserMutation
 } from "../redux/api.ts";
 import {Device, User} from "../models/entities.ts";
-import {MdAlternateEmail, MdBookmarkAdded, MdDevicesOther, MdLocationOn} from "react-icons/md";
+import {MdLocationOn} from "react-icons/md";
 import {SlEnergy} from "react-icons/sl";
-import {formatDaysHours} from "../utils/date-format.ts";
 import {IoMdAdd} from "react-icons/io";
 import {FaRegTrashAlt} from "react-icons/fa";
 import {TbEdit} from "react-icons/tb";
-import Modal from 'react-modal';
 import {CreateDeviceRequest, CreateUserRequest, UpdateDeviceRequest, UpdateUserRequest} from "../models/transfer.ts";
+import {UserCard} from "../components";
+import {toast, Toaster} from "react-hot-toast";
+import {extractErrorMessage} from "../utils/errors-helper.ts";
+import {errorToastOptions, successToastOptions} from "../utils/toast.tsx";
 
 export default function ManageUsersPage() {
    const authState: AuthState = useSelector(selectAuthState);
    const navigate = useNavigate();
 
-   const {data: users} = useGetAllUsersQuery();
+   const {data: usersResponse} = useGetAllUsersQuery();
    const [createUser] = useCreateUserMutation();
    const [updateUser] = useUpdateUserMutation();
    const [deleteUser] = useDeleteUserMutation();
 
-   const {data: devices} = useGetAllDevicesQuery();
+   const {data: devicesResponse} = useGetAllDevicesQuery();
    const [createDevice] = useCreateDeviceMutation();
    const [updateDevice] = useUpdateDeviceMutation();
    const [deleteDevice] = useDeleteDeviceMutation();
 
-   // TODO: trash, remake after
-   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
-   const [whatForm, setWhatForm] = useState<string>("updateUser");
+   // const [whatForm, setWhatForm] = useState<string>("updateUser");
    const [selectedUser, setSelectedUser] = useState<User | null>(null);
    const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
-
-
-   useEffect(() => {
-      if (users)
-         setSelectedUser(users.payload[0]);
-   }, [users]);
-
-   // end of trash
 
    useEffect(() => {
       if (authState.user?.role !== "Manager") {
@@ -58,15 +50,9 @@ export default function ManageUsersPage() {
    }, [authState, navigate]);
 
    const onAddUser = () => {
-      setWhatForm("createUser");
+      // setWhatForm("createUser");
       setSelectedUser(null);
-      setModalIsOpen(true);
-   }
-
-   const onUpdateUser = (user: User) => {
-      setWhatForm("updateUser");
-      setSelectedUser(user);
-      setModalIsOpen(true);
+      // setModalIsOpen(true);
    }
 
    const onDeleteUser = (user: User) => {
@@ -75,29 +61,27 @@ export default function ManageUsersPage() {
 
 
    const onAddDevice = () => {
-      setWhatForm("createDevice");
+      // setWhatForm("createDevice");
       setSelectedDevice(null);
-      setModalIsOpen(true);
+      // setModalIsOpen(true);
    }
 
    const onUpdateDevice = (device: Device) => {
-      setWhatForm("updateDevice");
+      // setWhatForm("updateDevice");
       setSelectedDevice(device);
-      setModalIsOpen(true);
+      // setModalIsOpen(true);
    }
 
    const onDeleteDevice = (device: Device) => {
       deleteDevice(device.id);
    }
 
-   function closeModal() {
-      setModalIsOpen(false);
+   const getUserDevices = (user: User): Device[] => {
+      return devicesResponse?.payload.filter(device => user.deviceIds.includes(device.id)) ?? [];
    }
 
    const getForm = () => {
-      switch (whatForm) {
-         case "updateUser":
-            return <EditUser selectedUser={selectedUser} onSave={updateUser}/>
+      switch ("whatForm") {
          case "createUser":
             return <CreateUserForm onSubmit={createUser}/>
          case "updateDevice":
@@ -107,21 +91,45 @@ export default function ManageUsersPage() {
       }
    }
 
+   const toggleSelectedUser = (user: User) => {
+      setSelectedUser(selectedUser === user ? null : user);
+   }
+
+   const onUpdateUser = (request: UpdateUserRequest) => {
+      updateUser(request).unwrap()
+         .then(updatedUserResponse => {
+            toast.success(`Successfully updated ${updatedUserResponse.payload.username}`, successToastOptions());
+         })
+         .catch(response => {
+            toast.error(extractErrorMessage(response.errors), errorToastOptions())
+         })
+   }
+   // Todo: make the same with the device card + add the card below for inserting!
+
    return (
       <div className="px-4 py-4 bg-background-accent h-screen w-full">
 
          {/* Manage Users panel */}
-         <div>
-            <div className="flex flex-row items-center justify-start gap-4">
-               <span className="text-2xl text-background-reverse">Manage users</span>
-               <IoMdAdd className="text-background-reverse text-2xl hover:text-primary-color cursor-pointer" onClick={onAddUser}/>
-            </div>
-            <section className="grid grid-cols-3 gap-5 mt-5">
-               {users?.payload.map(user =>
-                  <UserCard user={user} onUpdate={() => onUpdateUser(user)} onDelete={() => onDeleteUser(user)} key={user.id}/>
-               )}
-            </section>
+         <div className="flex flex-row items-center justify-start gap-4">
+            <span className="text-5xl text-background-reverse">Manage users</span>
+            <IoMdAdd className="text-background-reverse text-3xl hover:text-primary-color cursor-pointer transition-all" onClick={onAddUser}/>
          </div>
+         <section className="flex flex-row gap-4 flex-wrap mt-5">
+            {usersResponse?.payload.map(user =>
+               <div className="h-full flex-grow-0 basis-[32%]" key={user.id}>
+                  <UserCard
+                     isEditing={selectedUser === user}
+                     user={user}
+                     key={user.id}
+                     userDevices={getUserDevices(user)}
+                     availableDevices={devicesResponse?.payload ?? []}
+                     onDelete={() => onDeleteUser(user)}
+                     onEditClick={() => toggleSelectedUser(user)}
+                     onSave={onUpdateUser}
+                  />
+               </div>
+            )}
+         </section>
 
          <div className="w-full h-1 bg-primary-color my-10"></div>
 
@@ -132,24 +140,12 @@ export default function ManageUsersPage() {
                <IoMdAdd className="text-background-reverse text-2xl hover:text-primary-color cursor-pointer" onClick={onAddDevice}/>
             </div>
             <section className="grid grid-cols-3 gap-5 mt-5">
-               {devices?.payload.map(device =>
+               {devicesResponse?.payload.map(device =>
                   <DeviceCard device={device} onUpdate={() => onUpdateDevice(device)} onDelete={() => onDeleteDevice(device)} key={device.id}/>
                )}
             </section>
          </div>
-
-         <Modal
-            isOpen={modalIsOpen}
-            contentLabel="modal"
-         >
-            <div>
-               {getForm()}
-               <button onClick={closeModal}>close</button>
-            </div>
-
-
-         </Modal>
-
+         <Toaster/>
       </div>
    )
 }
@@ -193,54 +189,6 @@ function DeviceCard({device, onUpdate, onDelete}: DeviceCardProps) {
    )
 }
 
-type UserCardProps = {
-   user: User;
-   onUpdate: () => void;
-   onDelete: () => void;
-}
-
-function UserCard({user, onUpdate, onDelete}: UserCardProps) {
-   return (
-      <div className="flex flex-row bg-background-color text-background-reverse rounded-xl px-3 py-3">
-
-         {/* Card */}
-         <div
-            className="flex flex-col rounded-xl px-1 py-1 gap-1 animate-fadeIn flex-grow">
-            <div className="flex flex-row items-center justify-between gap-5">
-               <div className="flex flex-row items-center justify-between gap-3">
-                  <span className="text-3xl mb-1">{user.username}</span>
-                  <span className="text-sm text-accent-color">{user.role}</span>
-               </div>
-
-            </div>
-
-            <div className="flex flex-row items-center justify-start gap-3">
-               <MdAlternateEmail className="text-md text-accent-color"/>
-               <span>{user.email}</span>
-            </div>
-
-            <div className="flex flex-row items-center justify-start gap-3">
-               <MdBookmarkAdded className="text-md text-accent-color"/>
-               <span>{formatDaysHours(user.createdAt)}</span>
-            </div>
-
-            <div className="flex flex-row items-center justify-start gap-3">
-               <MdDevicesOther className="text-md text-accent-color"/>
-               <span>{user.deviceIds.length} devices</span>
-            </div>
-         </div>
-
-         {/* Actions */}
-         <div className="flex flex-col items-center justify-around px-1 py-1">
-            <TbEdit className="text-2xl hover:text-primary-color transition-all cursor-pointer" onClick={onUpdate}/>
-            <FaRegTrashAlt className="text-2xl hover:text-primary-color transition-all cursor-pointer" onClick={onDelete}/>
-         </div>
-      </div>
-
-
-   )
-}
-
 // Todo: garbage need to remove
 
 interface EditUserProps {
@@ -248,79 +196,51 @@ interface EditUserProps {
    onSave: (user: UpdateUserRequest) => void;
 }
 
-const EditUser: React.FC<EditUserProps> = ({selectedUser, onSave}) => {
-   const [updateUserRequest, setUpdateUserRequest] = useState<UpdateUserRequest>({
-      id: "",
-      username: '',
-      email: '',
-      role: 'User',
-      deviceIds: []
-   });
-
-   useEffect(() => {
-      if (selectedUser)
-         setUpdateUserRequest({...selectedUser});
-   }, [selectedUser]);
-
-   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      const {name, value} = e.target;
-      setUpdateUserRequest((prevUser) => ({
-         ...prevUser,
-         [name]: name === 'deviceIds' ? value.split(',') : value
-      }));
-   };
-
-   const handleSubmit = (e: FormEvent) => {
-      e.preventDefault();
-      onSave(updateUserRequest);
-   };
-
-   return (
-      <form onSubmit={handleSubmit}>
-         <div>
-            <label>Username:</label>
-            <input
-               type="text"
-               name="username"
-               value={updateUserRequest.username}
-               onChange={handleChange}
-               required
-            />
-         </div>
-
-         <div>
-            <label>Email:</label>
-            <input
-               type="email"
-               name="email"
-               value={updateUserRequest.email}
-               onChange={handleChange}
-               required
-            />
-         </div>
-
-         <div>
-            <label>Role:</label>
-            <select name="role" value={updateUserRequest.role} onChange={handleChange} required>
-               <option value="User">User</option>
-               <option value="Manager">Manager</option>
-            </select>
-         </div>
-
-         <div>
-            <label>Device IDs (comma-separated):</label>
-            <input
-               type="text"
-               name="deviceIds"
-               value={""}
-               onChange={handleChange}
-            />
-         </div>
-
-         <button type="submit">Save</button>
-      </form>
-   );
-};
+// const EditUser: React.FC<EditUserProps> = ({selectedUser, onSave}) => {
+//    const [updateUserRequest, setUpdateUserRequest] = useState<UpdateUserRequest>({
+//       id: "",
+//       username: '',
+//       email: '',
+//       role: 'User',
+//       deviceIds: []
+//    });
+//
+//    useEffect(() => {
+//       if (selectedUser)
+//          setUpdateUserRequest({...selectedUser});
+//    }, [selectedUser]);
+//
+//    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+//       const {name, value} = e.target;
+//       setUpdateUserRequest((prevUser) => ({
+//          ...prevUser,
+//          [name]: name === 'deviceIds' ? value.split(',') : value
+//       }));
+//    };
+//
+//    const handleSubmit = (e: FormEvent) => {
+//       e.preventDefault();
+//       onSave(updateUserRequest);
+//    };
+//
+//    return (
+//       <form onSubmit={handleSubmit} className="bg-background-accent p-10 rounded-xl w-full">
+//          <InputField label="Username" value={updateUserRequest.username} onChange={handleChange} type="text"/>
+//          <InputField label="Email" value={updateUserRequest.email} onChange={handleChange} type="text"/>
+//
+//          <div>
+//             <label>Role:</label>
+//             <select name="role" value={updateUserRequest.role} onChange={handleChange} required>
+//                <option value="User">User</option>
+//                <option value="Manager">Manager</option>
+//             </select>
+//          </div>
+//
+//          <InputField label="Devices" value={updateUserRequest.deviceIds.join(",").valueOf()} onChange={handleChange} type="text"/>
+//          <button type="submit">Save</button>
+//       </form>
+//    );
+// };
 
 interface CreateUserFormProps {
    onSubmit: (newUser: CreateUserRequest) => void;

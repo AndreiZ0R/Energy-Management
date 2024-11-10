@@ -36,7 +36,8 @@ export const api = createApi({
             url: `${Endpoints.auth}/authenticate`,
             method: HttpMethods.POST,
             body: request
-         })
+         }),
+         transformErrorResponse: (response) => response.data as Response<AuthenticationResponse>,
       }),
 
       register: builder.mutation<Response<AuthenticationResponse>, CreateUserRequest>({
@@ -45,15 +46,17 @@ export const api = createApi({
             method: HttpMethods.POST,
             body: request
          }),
+         transformErrorResponse: (response) => response.data as Response<AuthenticationResponse>
       }),
 
       // --------------- Devices Queries ---------------
       getDevicesByIds: builder.query<Response<Device[]>, string[]>({
          query: (deviceIds) => ({
-            url: `${Endpoints.devices}/ids`,
-            method: HttpMethods.POST,
-            body: {ids: deviceIds}
-         })
+            url: `${Endpoints.devices}/by-ids`,
+            method: HttpMethods.GET,
+            params: {ids: deviceIds},
+         }),
+         providesTags: ["Devices"]
       }),
 
       getAllDevices: builder.query<Response<Device[]>, void>({
@@ -102,12 +105,13 @@ export const api = createApi({
          invalidatesTags: ["Users"]
       }),
 
-      updateUser: builder.mutation<Response<Device>, UpdateUserRequest>({
+      updateUser: builder.mutation<Response<User>, UpdateUserRequest>({
          query: (request: UpdateUserRequest) => ({
             url: Endpoints.users,
             method: HttpMethods.PATCH,
             body: request
          }),
+         transformErrorResponse: (response) => response.data as Response<User>,
          invalidatesTags: ["Users"]
       }),
 

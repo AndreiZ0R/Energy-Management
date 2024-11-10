@@ -39,7 +39,7 @@ export const authSlice = createSlice({
       startSession: (state, action: PayloadAction<AuthenticationResponse>) => {
          state.user = action.payload.user;
          state.loggedIn = true;
-         Cookies.set(Constants.TOKEN, action.payload.token, {expires: 7, secure: true});
+         Cookies.set(Constants.TOKEN, action.payload.token, {expires: 1, secure: true});
          localStorage.setItem(Constants.USER, JSON.stringify(state.user));
       },
    },

@@ -2,7 +2,10 @@ interface BaseEntity {
    id: string;
 }
 
-type UserRole = "User" | "Manager";
+export enum UserRole {
+   USER = "User",
+   MANAGER = "Manager"
+}
 
 interface User extends BaseEntity {
    username: string;
@@ -26,7 +29,6 @@ interface AuthenticationResponse extends BaseEntity {
 
 export type {
    BaseEntity,
-   UserRole,
    User,
    Device,
    AuthenticationResponse

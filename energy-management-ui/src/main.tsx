@@ -30,10 +30,10 @@ const router = createBrowserRouter([
          element: <RegisterPage/>
       }, {
          path: AppRoutes.MANAGE_DEVICES,
-         element: <ManageDevicesPage/>
+         element: <PrivateRoute><ManageDevicesPage/></PrivateRoute>
       }, {
          path: AppRoutes.MANAGE_USERS,
-         element: <ManageUsersPage/>
+         element: <PrivateRoute><ManageUsersPage/></PrivateRoute>
       }]
    }
 ]);

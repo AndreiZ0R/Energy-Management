@@ -10,13 +10,9 @@ import {SubmitHandler, useForm} from "react-hook-form";
 import {useLoginMutation} from "../redux/api.ts";
 import {AuthenticationResponse} from "../models/entities.ts";
 import {Response} from "../models/transfer.ts";
-import InputField from "../components/InputField/InputField.tsx";
-import Button from "../components/Button/Button.tsx";
-import {ButtonType} from "../components";
+import {Button, ButtonType, InputField} from "../components";
 import {zodResolver} from "@hookform/resolvers/zod";
-
-//TODO: zod with form validation
-
+import {extractErrorMessage} from "../utils/errors-helper.ts";
 
 const loginSchema = z.object({
    username: z.string({required_error: "Field is required"}).refine(data => data.trim() !== "", {message: "Username can not be empty"}),
@@ -55,8 +51,8 @@ export default function LoginPage() {
             dispatch(startSession(response.payload));
             navigate(getRedirectedPath(location.search));
          })
-         .catch(error => {
-            setError("root", {message: error.message});
+         .catch((response: Response<AuthenticationResponse>) => {
+            setError("root", {message: extractErrorMessage(response.errors)});
          });
    }
 

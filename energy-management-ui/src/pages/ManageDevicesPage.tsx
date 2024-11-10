@@ -9,18 +9,14 @@ export default function ManageDevicesPage() {
    const authState: AuthState = useSelector(selectAuthState);
    const {data: devicesResponse} = useGetDevicesByIdsQuery(authState.user?.deviceIds ?? []);
 
-
    return (
       <div className="px-4 py-4 bg-background-accent h-screen w-full">
-         {devicesResponse?.payload.length === 0 && <span className="text-background-reverse">No devices yet.</span>}
-
-         <div className="grid grid-cols-3 gap-5 ">
-            {devicesResponse?.payload.map(device => <DeviceCard device={device}/>)}
-            {devicesResponse?.payload.map(device => <DeviceCard device={device}/>)}
-            {devicesResponse?.payload.map(device => <DeviceCard device={device}/>)}
-            {devicesResponse?.payload.map(device => <DeviceCard device={device}/>)}
-            {devicesResponse?.payload.map(device => <DeviceCard device={device}/>)}
-         </div>
+         {devicesResponse?.payload.length === 0 ?
+            <span className="text-background-reverse">No devices yet.</span> :
+            <div className="grid grid-cols-3 gap-5 ">
+               {devicesResponse?.payload.map(device => <DeviceCard device={device}/>)}
+            </div>
+         }
       </div>
    )
 }

@@ -1,5 +1,6 @@
 package org.andreiz0r.ums.entity;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -9,6 +10,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,6 +52,10 @@ public class User {
     @Column(nullable = false)
     private UserRole role;
 
-    @ElementCollection(fetch = FetchType.LAZY)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "user_device_ids",
+            uniqueConstraints = @UniqueConstraint(columnNames = {"device_ids"})
+    )
     private List<UUID> deviceIds;
 }

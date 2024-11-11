@@ -64,22 +64,26 @@ export default function MultiSelector({placeholder, options, selectedValues, onC
             <div
                className="absolute mt-1 w-full bg-background-accent border border-primary-color rounded shadow-lg z-10 text-background-reverse transition-all">
                <ul className="max-h-60 overflow-y-auto">
-                  {options.map((option, index) => (
-                     <li
-                        key={option.value + index}
-                        className={`flex flex-row w-full justify-between items-center cursor-pointer px-3 py-4 hover:bg-primary-color/25 transition-all`}
-                        onClick={() => handleOptionClick(option)}
-                     >
-                        <div className="flex flex-col">
-                           <span className="flex-1">{option.label}</span>
-                           <span className="text-sm text-gray-500">{option.optionalDescription}</span>
-                        </div>
+                  {options.length > 0 ?
+                     options.map((option, index) => (
+                        <li
+                           key={option.value + index}
+                           className={`flex flex-row w-full justify-between items-center cursor-pointer px-3 py-4 hover:bg-primary-color/25 transition-all`}
+                           onClick={() => handleOptionClick(option)}
+                        >
+                           <div className="flex flex-col">
+                              <span className="flex-1">{option.label}</span>
+                              <span className="text-sm text-gray-500">{option.optionalDescription}</span>
+                           </div>
 
-                        {isOptionSelected(option) && (
-                           <FaCheck className="h-5 w-5 text-accent-color"/>
-                        )}
-                     </li>
-                  ))}
+                           {isOptionSelected(option) && (
+                              <FaCheck className="h-5 w-5 text-accent-color"/>
+                           )}
+                        </li>
+                     ))
+                     :
+                     <span className="px-3 py-4 flex">Empty</span>
+                  }
                </ul>
             </div>
          )}

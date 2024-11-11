@@ -21,7 +21,7 @@ public class RabbitConsumer {
     private final DeviceService deviceService;
 
     @RabbitHandler
-    public void handleUserCreatedOrUpdatedEvent(final UpdateDeviceIdsEvent event) {
+    public void handleUpdateDeviceIdsEvent(final UpdateDeviceIdsEvent event) {
         var eventData = event.getEventData();
 
         if (Objects.isNull(eventData)) {
@@ -39,8 +39,11 @@ public class RabbitConsumer {
                 log.info("Successfully updated devices {} with the userId: {}", deviceIds, userId);
             } else {
                 log.error("Failed to update devices {} with the userId: {}", deviceIds, userId);
-                deviceService.updateDevicesWithUserId(deviceIds, null);
+                // Todo: get last userId and rollback
             }
+        } else {
+            log.info("Successfully removed userId from devices: {}", deviceIds);
+            deviceService.updateDevicesWithUserId(deviceIds, null);
         }
     }
 }

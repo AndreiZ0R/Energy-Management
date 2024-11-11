@@ -24,7 +24,6 @@ const customBaseQuery = fetchBaseQuery({
    },
 });
 
-// Todo: TAGS TO INVALIDATE CACHE!
 export const api = createApi({
    reducerPath: "api",
    baseQuery: customBaseQuery,
@@ -70,7 +69,7 @@ export const api = createApi({
             method: HttpMethods.POST,
             body: request
          }),
-         invalidatesTags: ["Devices"]
+         invalidatesTags: ["Devices", "Users"]
       }),
 
       updateDevice: builder.mutation<Response<Device>, UpdateDeviceRequest>({
@@ -79,7 +78,7 @@ export const api = createApi({
             method: HttpMethods.PATCH,
             body: request
          }),
-         invalidatesTags: ["Devices"]
+         invalidatesTags: ["Devices", "Users"]
       }),
 
       deleteDevice: builder.mutation<Response<Device>, string>({
@@ -87,7 +86,7 @@ export const api = createApi({
             url: `${Endpoints.devices}/${deviceId}`,
             method: HttpMethods.DELETE,
          }),
-         invalidatesTags: ["Devices"]
+         invalidatesTags: ["Devices", "Users"]
       }),
 
       // --------------- Users Queries ---------------
@@ -102,7 +101,7 @@ export const api = createApi({
             method: HttpMethods.POST,
             body: request
          }),
-         invalidatesTags: ["Users"]
+         invalidatesTags: ["Users", "Devices"]
       }),
 
       updateUser: builder.mutation<Response<User>, UpdateUserRequest>({
@@ -112,7 +111,7 @@ export const api = createApi({
             body: request
          }),
          transformErrorResponse: (response) => response.data as Response<User>,
-         invalidatesTags: ["Users"]
+         invalidatesTags: ["Users", "Devices"]
       }),
 
       deleteUser: builder.mutation<Response<Device>, string>({
@@ -120,7 +119,7 @@ export const api = createApi({
             url: `${Endpoints.users}/${userId}`,
             method: HttpMethods.DELETE,
          }),
-         invalidatesTags: ["Users"]
+         invalidatesTags: ["Users", "Devices"]
       }),
 
    })

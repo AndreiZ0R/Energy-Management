@@ -49,13 +49,13 @@ export default function Navbar() {
                </div>
                {authState.user?.role == "Manager" &&
                    <div
-                       onClick={() => navigate(AppRoutes.MANAGE_USERS)}
+                       onClick={() => navigate(AppRoutes.MANAGER_DASHBOARD)}
                        className={`flex flex-row ${expanded && "hover:bg-primary-color"} w-full rounded-xl px-3 py-2 cursor-pointer items-center justify-start gap-5 transition-all`}>
                        <FaUsers className={`text-background-reverse text-2xl cursor-pointer ${!expanded && "hover:text-primary-color"} transition-all`}/>
                       {expanded && <span className="text-background-reverse animate-slideIn">Users</span>}
                    </div>}
                <div
-                  onClick={() => navigate(AppRoutes.MANAGE_DEVICES)}
+                  onClick={() => navigate(AppRoutes.DEVICES)}
                   className={`flex flex-row ${expanded && "hover:bg-primary-color"} w-full rounded-xl px-3 py-2 cursor-pointer items-center justify-start gap-5 transition-all`}>
                   <RiDeviceFill className={`text-background-reverse text-2xl cursor-pointer ${!expanded && "hover:text-primary-color"} transition-all`}/>
                   {expanded && <span className="text-background-reverse animate-slideIn">Devices</span>}

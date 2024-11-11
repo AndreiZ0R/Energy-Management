@@ -59,10 +59,21 @@ public class UserService {
     public Optional<UserDTO> update(final UpdateUserRequest request) {
         return userRepository.findById(request.id())
                 .map(user -> {
+                    List<UUID> currentDevices = user.getDeviceIds();
+                    List<UUID> newDevices = request.deviceIds().stream().map(UUID::fromString).toList();
+
                     Mapper.updateValues(user, request);
                     userRepository.save(user);
 
-                    sendUpdateDeviceIdsEvent(user.getId(), user.getDeviceIds());
+                    if (newDevices.equals(currentDevices)) {
+                        sendUpdateDeviceIdsEvent(user.getId(), user.getDeviceIds());
+                    } else {
+                        sendUpdateDeviceIdsEvent(null, currentDevices);
+                        if (!newDevices.isEmpty()) {
+                            sendUpdateDeviceIdsEvent(user.getId(), newDevices);
+                        }
+                    }
+
                     return mapToDTO(user);
                 });
     }

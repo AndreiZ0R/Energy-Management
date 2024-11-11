@@ -10,7 +10,7 @@ import PrivateRoute from "./pages/PrivateRoute.tsx";
 import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import ManageDevicesPage from "./pages/ManageDevicesPage.tsx";
-import ManageUsersPage from "./pages/ManageUsersPage.tsx";
+import ManagerDashboardPage from "./pages/ManagerDashboardPage.tsx";
 
 const router = createBrowserRouter([
    {
@@ -29,11 +29,11 @@ const router = createBrowserRouter([
          path: AppRoutes.REGISTER,
          element: <RegisterPage/>
       }, {
-         path: AppRoutes.MANAGE_DEVICES,
+         path: AppRoutes.DEVICES,
          element: <PrivateRoute><ManageDevicesPage/></PrivateRoute>
       }, {
-         path: AppRoutes.MANAGE_USERS,
-         element: <PrivateRoute><ManageUsersPage/></PrivateRoute>
+         path: AppRoutes.MANAGER_DASHBOARD,
+         element: <PrivateRoute><ManagerDashboardPage/></PrivateRoute>
       }]
    }
 ]);

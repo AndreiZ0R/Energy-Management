@@ -16,8 +16,8 @@ export const AppRoutes = {
    HOME: "/home",
    LOGIN: "/login",
    REGISTER: "/register",
-   MANAGE_USERS: "/manage/users",
-   MANAGE_DEVICES: "/manage/devices"
+   MANAGER_DASHBOARD: "/manager-dashboard",
+   DEVICES: "/devices"
 };
 
 export const HttpMethods = {

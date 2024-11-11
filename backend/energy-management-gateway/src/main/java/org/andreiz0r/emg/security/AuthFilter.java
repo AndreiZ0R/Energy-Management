@@ -66,7 +66,6 @@ public class AuthFilter implements GlobalFilter, Ordered {
                     .retrieve()
                     .toBodilessEntity();
 
-            // Todo: parsing of role fails, check
             boolean hasManagerPrivileges = jwtUtils.extractRole(token)
                     .filter(UserRole.Manager::equals).isPresent();
 

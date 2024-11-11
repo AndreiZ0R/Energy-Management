@@ -1,6 +1,7 @@
 package org.andreiz0r.emg.config;
 
 import org.andreiz0r.core.util.JwtUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +10,10 @@ import org.springframework.web.client.RestClient;
 
 @Configuration
 public class AppConfig {
+
+    @Value("${jsonWebToken}")
+    private String jwtSecret;
+
     @LoadBalanced
     @Bean
     public RestClient.Builder restClientBuilder() {
@@ -21,7 +26,7 @@ public class AppConfig {
     }
 
     @Bean
-    public JwtUtils jwtUtils(){
-        return new JwtUtils(null);
+    public JwtUtils jwtUtils() {
+        return new JwtUtils(jwtSecret);
     }
 }

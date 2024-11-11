@@ -131,8 +131,7 @@ export default function ManagerDashboardPage() {
             toast.success(`Successfully updated ${updatedUserResponse.payload.description}`, successToastOptions());
          })
          .catch(response => {
-            console.log(response);
-            // toast.error(extractErrorMessage(response.errors), errorToastOptions());
+            toast.error(extractErrorMessage(response.errors), errorToastOptions());
          });
    }
 
@@ -141,6 +140,7 @@ export default function ManagerDashboardPage() {
       toast.success(`Successfully deleted: ${device.description}`, successToastOptions());
    }
 
+   // Todo: try to fix add widget height
    return (
       <div className="px-4 py-4 bg-background-accent h-full w-full overflow-auto transition-all">
 

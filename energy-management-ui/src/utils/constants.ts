@@ -27,7 +27,6 @@ export const HttpMethods = {
    DELETE: "DELETE",
 }
 
-// const baseUrl: string = import.meta.env.API_URL ?? "http://localhost:8000";
 export const Endpoints = {
    base: "/api",
    auth: "/ums/rest/auth",

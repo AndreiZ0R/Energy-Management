@@ -8,7 +8,6 @@ import org.andreiz0r.core.response.AuthenticationResponse;
 import org.andreiz0r.core.response.Response;
 import org.andreiz0r.ums.service.AuthenticationService;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,21 +26,21 @@ public class AuthenticationController {
     private final AuthenticationService authService;
 
     @PostMapping("/register")
-    private Response<AuthenticationResponse> register(@RequestBody final CreateUserRequest request) {
+    public Response<AuthenticationResponse> register(@RequestBody final CreateUserRequest request) {
         return authService.register(request)
                 .map(Response::successResponse)
                 .orElse(Response.failureResponse(new ClientError(REGISTER_FAILED), HttpStatus.BAD_REQUEST));
     }
 
     @PostMapping("/authenticate")
-    private Response<AuthenticationResponse> authenticate(@RequestBody final AuthenticationRequest request) {
+    public Response<AuthenticationResponse> authenticate(@RequestBody final AuthenticationRequest request) {
         return authService.authenticate(request)
                 .map(Response::successResponse)
                 .orElse(Response.failureResponse(new ClientError(LOGIN_FAILED), HttpStatus.UNAUTHORIZED));
     }
 
     @PostMapping("/validate")
-    private Response<String> validateToken(@RequestBody final String token) {
+    public Response<String> validateToken(@RequestBody final String token) {
         return authService.isValidToken(token) ?
                Response.successResponse(token) :
                Response.failureResponse(new ClientError(BAD_TOKEN), HttpStatus.UNAUTHORIZED);

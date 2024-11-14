@@ -19,10 +19,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.andreiz0r.core.util.Randoms.alphabetic;
-import static org.andreiz0r.ums.util.TestUtils.UserTestUtils.convertToDTO;
-import static org.andreiz0r.ums.util.TestUtils.UserTestUtils.createUserRequest;
-import static org.andreiz0r.ums.util.TestUtils.UserTestUtils.randomUser;
-import static org.andreiz0r.ums.util.TestUtils.UserTestUtils.updateUserRequest;
+import static org.andreiz0r.ums.util.TestUtils.RequestUtils.createUserRequest;
+import static org.andreiz0r.ums.util.TestUtils.RequestUtils.updateUserRequest;
+import static org.andreiz0r.ums.util.TestUtils.UserUtils.convertToDTO;
+import static org.andreiz0r.ums.util.TestUtils.UserUtils.randomUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -171,6 +171,31 @@ class UserServiceTest extends BaseUnitTest {
                     assertThat(events.get(0).getEventData(),
                                equalTo(new UpdateDeviceIdsDTO(null, initialDevices)));
                     assertThat(events.get(1).getEventData(),
+                               equalTo(new UpdateDeviceIdsDTO(user.id(), user.deviceIds())));
+                },
+                this::assertThatFails
+        );
+    }
+
+    @Test
+    void update_userIsFoundWithSameDevices_successfullyUpdates() {
+        User initialUser = randomUser();
+        User updatedUser = randomUser();
+        updatedUser.setId(initialUser.getId());
+        updatedUser.setCreatedAt(initialUser.getCreatedAt());
+        updatedUser.setDeviceIds(initialUser.getDeviceIds());
+        when(repository.findById(initialUser.getId())).thenReturn(Optional.of(initialUser));
+
+        Optional<UserDTO> response = victim.update(updateUserRequest(updatedUser));
+
+        ArgumentCaptor<UpdateDeviceIdsEvent> eventCaptor = ArgumentCaptor.forClass(UpdateDeviceIdsEvent.class);
+        verify(repository).findById(initialUser.getId());
+        verify(repository).save(initialUser);
+        verify(rabbitProducer).produce(eventCaptor.capture());
+        response.ifPresentOrElse(
+                user -> {
+                    assertThat(user, equalTo(convertToDTO(updatedUser)));
+                    assertThat(eventCaptor.getValue().getEventData(),
                                equalTo(new UpdateDeviceIdsDTO(user.id(), user.deviceIds())));
                 },
                 this::assertThatFails

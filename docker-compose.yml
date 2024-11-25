@@ -1,6 +1,5 @@
 services:
-
-# ----------- RabbitMQ Server -----------
+  # ----------- RabbitMQ Server -----------
   rabbitmq:
     image: rabbitmq:4.0-management
     container_name: rabbitmq_server
@@ -10,7 +9,7 @@ services:
     networks:
       - services-net
 
-# ----------- Eureka Service Discovery -----------
+  # ----------- Eureka Service Discovery -----------
   eureka-sd:
     build:
       context: ./backend/eureka-service-discovery
@@ -28,7 +27,7 @@ services:
       timeout: 10s
       retries: 10
 
-# ----------- Gateway Service -----------
+  # ----------- Gateway Service -----------
   api-gateway:
     build:
       context: ./backend/energy-management-gateway
@@ -46,7 +45,7 @@ services:
     networks:
       - services-net
 
-# ----------- USER-MANAGEMENT-SERVICE -----------
+  # ----------- USER-MANAGEMENT-SERVICE -----------
   ums:
     build:
       context: ./backend/user-management-service
@@ -83,14 +82,14 @@ services:
       POSTGRES_DB: ums_db
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ums_db:/var/lib/postgresql/data
     networks:
       - services-net
     restart: unless-stopped
 
-# ----------- DEVICE-MANAGEMENT-SERVICE -----------
+  # ----------- DEVICE-MANAGEMENT-SERVICE -----------
   dms:
     build:
       context: ./backend/device-management-service
@@ -127,14 +126,58 @@ services:
       POSTGRES_DB: dms_db
       PG_DATA: /var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "5434:5432"
     volumes:
       - dms_db:/var/lib/postgresql/data
     networks:
       - services-net
     restart: unless-stopped
 
-# ----------- Frontend -----------
+  # ----------- MONITORING-COMMUNICATION-SERVICE -----------
+  mcs:
+    build:
+      context: ./backend/monitoring-communication-service
+      dockerfile: Dockerfile
+    container_name: monitoring-communication-service
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./backend/monitoring-communication-service:/app
+    depends_on:
+      eureka-sd:
+        condition: service_healthy
+      api-gateway:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      mcs_db:
+        condition: service_started
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://mcs_db:5432/mcs_db
+      EUREKA_URL: http://eureka-service-discovery:8761/eureka
+      RABBIT_HOST: rabbitmq_server
+    networks:
+      - services-net
+
+  mcs_db:
+    image: postgres
+    container_name: mcs_db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mcs_db
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - "5435:5432"
+    volumes:
+      - mcs_db:/var/lib/postgresql/data
+    networks:
+      - services-net
+    restart: unless-stopped
+
+  # ----------- Frontend -----------
   frontend:
     build:
       context: ./energy-management-ui
@@ -144,7 +187,7 @@ services:
       - "5173:5173"
     volumes:
       - './energy-management-ui/src:/app/src'
-#      - './data:/app/data'
+    #      - './data:/app/data'
     depends_on:
       eureka-sd:
         condition: service_healthy
@@ -156,6 +199,7 @@ services:
         condition: service_started
     environment:
       API_URL: http://energy-management-gateway:8000
+      WS_URL: http://monitoring-communication-service:8003
     networks:
       - services-net
 
@@ -168,5 +212,6 @@ networks:
 volumes:
   ums_db:
   dms_db:
+  mcs_db:
 
 # Todo: nginx reverse proxy

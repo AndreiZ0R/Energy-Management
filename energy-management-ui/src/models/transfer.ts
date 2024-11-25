@@ -52,11 +52,26 @@ enum ResponseStatus {
    FORBIDDEN = "FORBIDDEN"
 }
 
-interface Response<T extends BaseEntity | BaseEntity[]> {
+interface Response<T extends BaseEntity | BaseEntity[] | Notification> {
    payload: T;
    message: string;
    status: ResponseStatus;
    errors: ClientError[];
+}
+
+export enum NotificationType {
+   INFO = "INFO",
+   SUCCESS = "SUCCESS",
+   ERROR = "ERROR"
+}
+
+interface Notification {
+   message: string;
+   type: NotificationType;
+}
+
+export enum Topic {
+   NOTIFICATIONS = "/topic/notifications",
 }
 
 export type {
@@ -68,5 +83,6 @@ export type {
    CreateUserRequest,
    GetDevicesByIdRequest,
    UpdateDeviceRequest,
-   UpdateUserRequest
+   UpdateUserRequest,
+   Notification,
 }

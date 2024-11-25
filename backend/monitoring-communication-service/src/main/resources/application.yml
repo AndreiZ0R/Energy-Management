@@ -1,0 +1,39 @@
+server:
+  port: 8003
+spring:
+  application:
+    name: monitoring-communication-service
+  datasource:
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/mcs_db
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_schema: public
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+
+# Eureka Service Discovery config
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URL:http://localhost:8761/eureka}
+
+# RabbitMQ
+rabbit:
+  exchange:
+    name: internal.exchange
+  queue:
+    monitoring-events: internal.monitoring.events
+    device-events: internal.device.events
+  routing:
+    key:
+      monitoring-events: internal.monitoring.routing
+      device-events: internal.device.routing
+
+default.number.of.measurements: 6

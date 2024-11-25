@@ -31,7 +31,9 @@ rabbit:
   queue:
     user-events: internal.user.events
     device-events: internal.device.events
+    monitoring-events: internal.monitoring.events
   routing:
     key:
       user-events: internal.user.routing
       device-events: internal.device.routing
+      monitoring-events: internal.monitoring.routing

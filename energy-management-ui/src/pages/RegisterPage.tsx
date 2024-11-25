@@ -188,7 +188,6 @@ export default function RegisterPage() {
                <img src={illustration} className="object-cover md:h-full md:w-full rounded-r-xl sm:h-0 sm:w-0 hidden md:block" alt="ill"/>
             </div>
          </div>
-         <Toaster/>
       </div>
    )
 }

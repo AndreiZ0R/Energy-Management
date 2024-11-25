@@ -20,9 +20,13 @@ public class RabbitProducer {
 
     private final RabbitTemplate rabbitTemplate;
 
-    // Todo: maybe configure exchange & routing a bit better
     public <T extends AbstractEvent<?>> void produce(final T event) {
         log.info("Event sent to exchange {}: {}", exchange, event);
+        rabbitTemplate.convertAndSend(exchange, routingKey, event);
+    }
+
+    public <T extends AbstractEvent<?>> void produce(final T event, final String routingKey) {
+        log.info("Event sent to exchange {} with routing key {}: {}", exchange, routingKey, event);
         rabbitTemplate.convertAndSend(exchange, routingKey, event);
     }
 }

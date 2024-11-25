@@ -7,6 +7,7 @@ ESD="Eureka Service Discovery"
 EMG="Energy Management Gateway"
 UMS="User Management Service"
 DMS="Device Management Service"
+MCS="Monitoring Communication Service"
 
 BASE_PATH="D:\Facultate\An 4\Sem 1\Sisteme Distribuite (SD)\project\backend"
 
@@ -55,6 +56,13 @@ print_success
 echo "Building ${DMS}..."
 # shellcheck disable=SC2164
 cd "${BASE_PATH}\device-management-service"
+mvn clean install -DskipTests=true || { echo "FAILED to build ${DMS}" ; exit 5; }
+print_success
+
+# Build MCS
+echo "Building ${MCS}..."
+# shellcheck disable=SC2164
+cd "${BASE_PATH}\monitoring-communication-service"
 mvn clean install -DskipTests=true || { echo "FAILED to build ${DMS}" ; exit 5; }
 print_success
 

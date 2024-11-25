@@ -3,14 +3,18 @@ package org.andreiz0r.dms.service;
 import lombok.RequiredArgsConstructor;
 import org.andreiz0r.core.dto.DeviceDTO;
 import org.andreiz0r.core.dto.DeviceDeletedDTO;
+import org.andreiz0r.core.dto.DeviceUpdateDTO;
+import org.andreiz0r.core.enums.DeviceAction;
 import org.andreiz0r.core.enums.TracedService;
 import org.andreiz0r.core.event.DeviceDeletedEvent;
+import org.andreiz0r.core.event.DeviceUpdateEvent;
 import org.andreiz0r.core.mapper.Mapper;
 import org.andreiz0r.core.request.CreateDeviceRequest;
 import org.andreiz0r.core.request.UpdateDeviceRequest;
 import org.andreiz0r.dms.entity.Device;
 import org.andreiz0r.dms.producer.RabbitProducer;
 import org.andreiz0r.dms.repository.DeviceRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +24,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class DeviceService {
+
+    @Value("${rabbit.routing.key.monitoring-events}")
+    private String monitoringRoutingKey;
 
     private final DeviceRepository deviceRepository;
     private final RabbitProducer rabbitProducer;
@@ -45,7 +52,10 @@ public class DeviceService {
                         .maximumHourlyConsumption(request.maximumHourlyConsumption())
                         .build());
 
-        return Optional.of(mapToDTO(device));
+        DeviceDTO deviceDTO = mapToDTO(device);
+        sendDeviceEvent(deviceDTO, DeviceAction.CREATE);
+
+        return Optional.of(deviceDTO);
     }
 
     public Optional<DeviceDTO> update(final UpdateDeviceRequest request) {
@@ -53,7 +63,10 @@ public class DeviceService {
                 .map(device -> {
                     Mapper.updateValues(device, request);
                     deviceRepository.save(device);
-                    return mapToDTO(device);
+                    DeviceDTO deviceDTO = mapToDTO(device);
+
+                    sendDeviceEvent(deviceDTO, DeviceAction.UPDATE);
+                    return deviceDTO;
                 });
     }
 
@@ -65,7 +78,9 @@ public class DeviceService {
 
                     if (deviceDeleted) {
                         DeviceDeletedDTO deviceDeletedDTO = new DeviceDeletedDTO(userId, id);
-                        rabbitProducer.produce(new DeviceDeletedEvent(deviceDeletedDTO, TracedService.DMS));
+                        DeviceDeletedEvent event = new DeviceDeletedEvent(deviceDeletedDTO, TracedService.DMS);
+                        rabbitProducer.produce(event);
+                        rabbitProducer.produce(event, monitoringRoutingKey);
                     }
 
                     return deviceDeleted;
@@ -79,5 +94,10 @@ public class DeviceService {
 
     private DeviceDTO mapToDTO(final Device device) {
         return Mapper.mapTo(device, DeviceDTO.class);
+    }
+
+    private void sendDeviceEvent(final DeviceDTO deviceDTO, final DeviceAction action) {
+        DeviceUpdateDTO eventData = new DeviceUpdateDTO(deviceDTO, action);
+        rabbitProducer.produce(new DeviceUpdateEvent(eventData, TracedService.DMS), monitoringRoutingKey);
     }
 }

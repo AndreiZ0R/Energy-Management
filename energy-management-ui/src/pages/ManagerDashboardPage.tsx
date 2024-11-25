@@ -17,7 +17,7 @@ import {Device, User} from "../models/entities.ts";
 import {IoMdAdd} from "react-icons/io";
 import {CreateDeviceRequest, CreateUserRequest, UpdateDeviceRequest, UpdateUserRequest} from "../models/transfer.ts";
 import {UserCard, UserForm} from "../components";
-import {toast, Toaster} from "react-hot-toast";
+import {toast} from "react-hot-toast";
 import {UserFormData} from "../components/Form/UserForm.tsx";
 import {errorToastOptions, successToastOptions} from "../utils/toast.tsx";
 import {extractErrorMessage} from "../utils/errors-helper.ts";
@@ -208,7 +208,6 @@ export default function ManagerDashboardPage() {
                }
             </div>
          </section>
-         <Toaster/>
       </div>
    )
 }

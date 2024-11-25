@@ -1,9 +1,10 @@
 import {defineConfig} from 'vite'
 import react from '@vitejs/plugin-react-swc'
-// import * as path from "node:path";
 
-const proxyUrl = process.env.API_URL ?? "http://localhost:8000";
-console.log("Configuring proxy for apiUrl: " + proxyUrl);
+const httpProxyUrl = process.env.API_URL ?? "http://localhost:8000";
+const wsProxyUrl = process.env.WS_URL ?? "http://localhost:8003";
+console.log("Configuring http proxy: ", httpProxyUrl);
+console.log("Configuring ws proxy: ", wsProxyUrl);
 
 export default defineConfig({
    server: {
@@ -12,18 +13,11 @@ export default defineConfig({
       },
       proxy: {
          '^/api': {
-            target: proxyUrl,
+            target: httpProxyUrl,
             rewrite: (path) => path.replace("/api", ''),
-         }
-         // "/socket": "wss://localhost:8080",
+         },
+         '/socket': wsProxyUrl
       },
    },
-   // resolve: {
-   //    alias: {
-   //       '@': path.resolve(__dirname, './src'),
-   //       '@components': path.resolve(__dirname, './src/components'),
-   //       '@pages': path.resolve(__dirname, './src/pages'),
-   //    }
-   // },
    plugins: [react()],
 })

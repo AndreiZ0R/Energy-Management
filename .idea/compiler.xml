@@ -11,6 +11,7 @@
         <module name="energy-management-core" />
         <module name="energy-management-gateway" />
         <module name="user-management-service" />
+        <module name="monitoring-communication-service" />
         <module name="device-management-service" />
       </profile>
     </annotationProcessing>
@@ -20,6 +21,7 @@
       <module name="device-management-service" options="-parameters" />
       <module name="energy-management-gateway" options="-parameters" />
       <module name="eureka-service-discovery" options="-parameters" />
+      <module name="monitoring-communication-service" options="-parameters" />
       <module name="user-management-service" options="-parameters" />
     </option>
   </component>

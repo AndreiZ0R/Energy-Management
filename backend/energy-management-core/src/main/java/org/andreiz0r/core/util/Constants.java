@@ -50,6 +50,10 @@ public interface Constants {
             return Timestamp.from(Instant.now());
         }
 
+        static Timestamp fromString(final String nanos) {
+            return new Timestamp(Long.parseLong(nanos) / 1_000_000);
+        }
+
         static java.sql.Date sqlDateNow() {
             return new java.sql.Date(System.currentTimeMillis());
         }

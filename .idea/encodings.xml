@@ -6,6 +6,7 @@
     <file url="file://$PROJECT_DIR$/backend/energy-management-core/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/energy-management-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/eureka-service-discovery/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/backend/monitoring-communication-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/backend/user-management-service/src/main/java" charset="UTF-8" />
   </component>
 </project>

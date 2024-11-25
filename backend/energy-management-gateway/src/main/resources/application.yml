@@ -24,6 +24,10 @@ spring:
           uri: lb://device-management-service
           predicates:
             - Path=/dms/**
+#        - id: ws-route
+#          uri: lb:ws://monitoring-communication-service
+#          predicates:
+#            - Path=/mcs/socket/**
       default-filters:
         - AddRequestHeader=proxied, true
         - StripPrefix=1

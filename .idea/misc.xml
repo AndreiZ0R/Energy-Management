@@ -9,6 +9,7 @@
         <option value="$PROJECT_DIR$/backend/energy-management-gateway/pom.xml" />
         <option value="$PROJECT_DIR$/backend/eureka-service-discovery/pom.xml" />
         <option value="$PROJECT_DIR$/backend/energy-management-core/pom.xml" />
+        <option value="$PROJECT_DIR$/backend/monitoring-communication-service/pom.xml" />
       </list>
     </option>
   </component>

@@ -11,6 +11,12 @@ import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import ManageDevicesPage from "./pages/ManageDevicesPage.tsx";
 import ManagerDashboardPage from "./pages/ManagerDashboardPage.tsx";
+import SockJS from "sockjs-client";
+import {Client, Message, over} from "stompjs";
+import {createContext} from "react";
+import {toast} from "react-hot-toast";
+import {errorToastOptions, infoToastOptions, successToastOptions} from "./utils/toast.tsx";
+import {Notification, NotificationType, Response, Topic} from "./models/transfer.ts";
 
 const router = createBrowserRouter([
    {
@@ -38,9 +44,37 @@ const router = createBrowserRouter([
    }
 ]);
 
+// Todo: maybe put subscribes here, remove WsContext and use redux to take actions
+const stompClient: Client = over(new SockJS('/socket'));
+stompClient.connect({}, frame => {
+   console.log("WS Client connected: ", frame);
+
+   stompClient.subscribe(Topic.NOTIFICATIONS, (message: Message) => {
+      const notificationResponse: Response<Notification> = JSON.parse(message.body).body;
+      console.log(notificationResponse);
+
+      const {message: notificationMessage, type} = notificationResponse.payload;
+
+      switch (type) {
+         case NotificationType.INFO:
+            toast.success(notificationMessage, infoToastOptions());
+            break;
+         case NotificationType.SUCCESS:
+            toast.success(notificationMessage, successToastOptions());
+            break;
+         case NotificationType.ERROR:
+            toast.error(notificationMessage, errorToastOptions());
+            break;
+      }
+   })
+})
+
+export const WsContext = createContext<Client>(stompClient);
 
 createRoot(document.getElementById('root')!).render(
    <Provider store={store}>
-      <RouterProvider router={router}/>
+      <WsContext.Provider value={stompClient}>
+         <RouterProvider router={router}/>
+      </WsContext.Provider>
    </Provider>
 )

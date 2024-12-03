@@ -68,10 +68,11 @@ export enum NotificationType {
 interface Notification {
    message: string;
    type: NotificationType;
+   userId: string;
 }
 
 export enum Topic {
-   NOTIFICATIONS = "/topic/notifications",
+   NOTIFICATIONS = "/topic/notifications/",
 }
 
 export type {

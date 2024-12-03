@@ -8,7 +8,9 @@ import org.andreiz0r.core.mapper.Mapper;
 import org.andreiz0r.core.request.CreateMonitoredDeviceRequest;
 import org.andreiz0r.core.request.UpdateMonitoredDeviceRequest;
 import org.andreiz0r.core.topic.Topic;
+import org.andreiz0r.mcs.entity.HourlyConsumption;
 import org.andreiz0r.mcs.entity.MonitoredDevice;
+import org.andreiz0r.mcs.repository.HourlyConsumptionRepository;
 import org.andreiz0r.mcs.repository.MonitoredDeviceRepository;
 import org.andreiz0r.mcs.websocket.WebsocketWrapper;
 import org.springframework.stereotype.Service;
@@ -17,12 +19,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.andreiz0r.core.util.Constants.Time.fromString;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class MonitoredDeviceService {
 
     private final MonitoredDeviceRepository monitoredDeviceRepository;
+    private final HourlyConsumptionRepository hourlyConsumptionRepository;
     private final WebsocketWrapper websocketWrapper;
 
     public Optional<List<MonitoredDevice>> getMonitoredDevices() {
@@ -38,9 +43,11 @@ public class MonitoredDeviceService {
                 MonitoredDevice.builder()
                         .deviceId(request.deviceId())
                         .userId(request.userId())
+                        .description(request.description())
+                        .address(request.address())
                         .maximumHourlyConsumption(request.maximumHourlyConsumption())
-                        .hourlyConsumption(0.0)
                         .monitored(false)
+                        .hourlyConsumptions(List.of())
                         .build()
         );
 
@@ -64,20 +71,27 @@ public class MonitoredDeviceService {
         return monitoredDeviceRepository.findRandomUnmonitoredDevice();
     }
 
-    // Todo: check if needed to sync description for better UX message
-    public void setHourlyConsumption(final UUID deviceId, final Double hourlyConsumption) {
+    public void setHourlyConsumption(final UUID deviceId, final Double hourlyConsumption, final String timestamp) {
         monitoredDeviceRepository.findById(deviceId)
                 .ifPresentOrElse(
                         device -> {
-                            device.setHourlyConsumption(hourlyConsumption);
+                            hourlyConsumptionRepository.save(
+                                    HourlyConsumption.builder()
+                                            .deviceId(deviceId)
+                                            .consumption(hourlyConsumption)
+                                            .timestamp(fromString(timestamp))
+                                            .build());
                             monitoredDeviceRepository.save(device);
 
                             if (hourlyConsumption > device.getMaximumHourlyConsumption()) {
-                                log.info("Maximum hourly consumption exceeded for device {}", deviceId);
+                                log.info("Maximum hourly consumption exceeded for device {}, user: {}", deviceId, device.getUserId());
                                 websocketWrapper.sendSuccessMessage(
-                                        new Notification("Maximum hourly consumption exceeded for device " + deviceId, NotificationType.INFO),
-                                        Topic.NOTIFICATIONS);
-                                // Todo: send to topic specific for user
+                                        new Notification("Maximum hourly consumption exceeded for device: " + device.getDescription(),
+                                                         NotificationType.INFO,
+                                                         device.getUserId()),
+                                        Topic.NOTIFICATIONS
+//                                        , device.getUserId().toString()
+                                );
                             }
                         },
                         () -> log.info("No device with id {} found", deviceId)

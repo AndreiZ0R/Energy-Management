@@ -16,6 +16,6 @@ public enum Topic {
 
     @Override
     public String toString() {
-        return "/topic/" + this.name;
+        return "/topic/" + this.name + "/";
     }
 }

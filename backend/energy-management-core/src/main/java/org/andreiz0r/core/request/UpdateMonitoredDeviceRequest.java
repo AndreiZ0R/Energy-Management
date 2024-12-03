@@ -9,7 +9,8 @@ import java.util.UUID;
 public record UpdateMonitoredDeviceRequest(
         @JsonProperty UUID deviceId,
         @JsonProperty UUID userId,
+        @JsonProperty String description,
+        @JsonProperty String address,
         @JsonProperty Long maximumHourlyConsumption,
-        @JsonProperty Double hourlyConsumption,
         @JsonProperty Boolean monitored) {
 }

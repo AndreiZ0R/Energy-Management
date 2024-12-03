@@ -13,7 +13,6 @@ export const themeColors = {
       color: 'rgb(var(--background-color) / <alpha-value>)',
       accent: 'rgb(var(--background-accent) / <alpha-value>)',
       reverse: `rgb(var(--background-text) / <alpha-value>)`
-      // text: 'rgb(var(--background-text) / <alpha-value>'
    }
 };
 

@@ -22,6 +22,17 @@ interface Device extends BaseEntity {
    userId: string;
 }
 
+interface HourlyConsumption extends BaseEntity {
+   consumption: number;
+   timestamp: Date;
+}
+
+interface MonitoredDevice extends BaseEntity, Device {
+   deviceId: string;
+   monitored: boolean;
+   hourlyConsumptions: HourlyConsumption[];
+}
+
 interface AuthenticationResponse extends BaseEntity {
    user: User;
    token: string;
@@ -31,5 +42,7 @@ export type {
    BaseEntity,
    User,
    Device,
+   HourlyConsumption,
+   MonitoredDevice,
    AuthenticationResponse
 }

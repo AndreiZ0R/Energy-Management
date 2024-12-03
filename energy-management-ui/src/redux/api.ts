@@ -2,7 +2,7 @@ import {fetchBaseQuery} from "@reduxjs/toolkit/query";
 import {Constants, Endpoints, HeaderUtils, HttpMethods} from "../utils/constants.ts";
 import Cookies from "js-cookie";
 import {createApi} from "@reduxjs/toolkit/query/react";
-import {AuthenticationResponse, Device, User} from "../models/entities.ts";
+import {AuthenticationResponse, Device, MonitoredDevice, User} from "../models/entities.ts";
 import {AuthenticationRequest, CreateDeviceRequest, CreateUserRequest, Response, UpdateDeviceRequest, UpdateUserRequest} from "../models/transfer.ts";
 
 
@@ -27,7 +27,7 @@ const customBaseQuery = fetchBaseQuery({
 export const api = createApi({
    reducerPath: "api",
    baseQuery: customBaseQuery,
-   tagTypes: ["Users", "Devices"],
+   tagTypes: ["Users", "Devices", "DevicesById", "MonitoredDevices"],
    endpoints: (builder) => ({
 
       login: builder.mutation<Response<AuthenticationResponse>, AuthenticationRequest>({
@@ -55,7 +55,7 @@ export const api = createApi({
             method: HttpMethods.GET,
             params: {ids: deviceIds},
          }),
-         providesTags: ["Devices"]
+         providesTags: ["DevicesById"]
       }),
 
       getAllDevices: builder.query<Response<Device[]>, void>({
@@ -69,7 +69,7 @@ export const api = createApi({
             method: HttpMethods.POST,
             body: request
          }),
-         invalidatesTags: ["Devices", "Users"]
+         invalidatesTags: ["Devices", "Users", "MonitoredDevices", "DevicesById"]
       }),
 
       updateDevice: builder.mutation<Response<Device>, UpdateDeviceRequest>({
@@ -78,7 +78,7 @@ export const api = createApi({
             method: HttpMethods.PATCH,
             body: request
          }),
-         invalidatesTags: ["Devices", "Users"]
+         invalidatesTags: ["Devices", "Users", "MonitoredDevices", "DevicesById"]
       }),
 
       deleteDevice: builder.mutation<Response<Device>, string>({
@@ -86,7 +86,7 @@ export const api = createApi({
             url: `${Endpoints.devices}/${deviceId}`,
             method: HttpMethods.DELETE,
          }),
-         invalidatesTags: ["Devices", "Users"]
+         invalidatesTags: ["Devices", "Users", "MonitoredDevices", "DevicesById"]
       }),
 
       // --------------- Users Queries ---------------
@@ -101,7 +101,7 @@ export const api = createApi({
             method: HttpMethods.POST,
             body: request
          }),
-         invalidatesTags: ["Users", "Devices"]
+         invalidatesTags: ["Users", "Devices", "MonitoredDevices", "DevicesById"]
       }),
 
       updateUser: builder.mutation<Response<User>, UpdateUserRequest>({
@@ -111,7 +111,7 @@ export const api = createApi({
             body: request
          }),
          transformErrorResponse: (response) => response.data as Response<User>,
-         invalidatesTags: ["Users", "Devices"]
+         invalidatesTags: ["Users", "Devices", "MonitoredDevices", "DevicesById"]
       }),
 
       deleteUser: builder.mutation<Response<Device>, string>({
@@ -119,7 +119,13 @@ export const api = createApi({
             url: `${Endpoints.users}/${userId}`,
             method: HttpMethods.DELETE,
          }),
-         invalidatesTags: ["Users", "Devices"]
+         invalidatesTags: ["Users", "Devices", "MonitoredDevices", "DevicesById"]
+      }),
+
+      // --------------- Monitored Devices Queries ---------------
+      getAllMonitoredDevices: builder.query<Response<MonitoredDevice[]>, void>({
+         query: () => Endpoints.monitoredDevices,
+         providesTags: ["MonitoredDevices"]
       }),
 
    })
@@ -136,5 +142,6 @@ export const {
    useGetAllUsersQuery,
    useCreateUserMutation,
    useUpdateUserMutation,
-   useDeleteUserMutation
+   useDeleteUserMutation,
+   useGetAllMonitoredDevicesQuery
 } = api;

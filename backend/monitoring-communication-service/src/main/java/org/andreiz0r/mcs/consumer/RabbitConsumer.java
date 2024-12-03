@@ -51,7 +51,7 @@ public class RabbitConsumer {
                         .map(sum -> sum / measurements.size())
                         .ifPresentOrElse(
                                 averageConsumption -> {
-                                    monitoredDeviceService.setHourlyConsumption(deviceId, averageConsumption);
+                                    monitoredDeviceService.setHourlyConsumption(deviceId, averageConsumption, sensorData.timestamp());
                                     log.info("Set hourlyConsumption to {} for device {}", averageConsumption, deviceId);
                                 },
                                 () -> log.error("No measurements set for device id: {}", deviceId)
@@ -81,6 +81,8 @@ public class RabbitConsumer {
                 case CREATE -> monitoredDeviceService.create(new CreateMonitoredDeviceRequest(
                                 device.id(),
                                 device.userId(),
+                                device.description(),
+                                device.address(),
                                 device.maximumHourlyConsumption()))
                         .ifPresentOrElse(
                                 monitoredDevice -> log.info("Successfully synced new monitored device: {} -> {}", device, monitoredDevice),
@@ -89,8 +91,9 @@ public class RabbitConsumer {
                 case UPDATE -> monitoredDeviceService.update(new UpdateMonitoredDeviceRequest(
                                 device.id(),
                                 device.userId(),
+                                device.description(),
+                                device.address(),
                                 device.maximumHourlyConsumption(),
-                                null,
                                 null))
                         .ifPresentOrElse(
                                 monitoredDevice -> log.info("Successfully updated monitored device: {} -> {}", device, monitoredDevice),

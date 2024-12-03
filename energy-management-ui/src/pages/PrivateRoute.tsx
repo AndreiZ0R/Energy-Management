@@ -4,7 +4,10 @@ import {Navigate, useLocation} from 'react-router-dom';
 import {ReactNode, useContext, useEffect} from "react";
 import {AppRoutes} from "../utils/constants.ts";
 import {WsContext} from "../main.tsx";
-import {Client} from "stompjs";
+import {Client, Message} from "stompjs";
+import {Notification, NotificationType, Response, Topic} from "../models/transfer.ts";
+import {toast} from "react-hot-toast";
+import {errorToastOptions, infoToastOptions, successToastOptions} from "../utils/toast.tsx";
 
 type PrivateRouteProps = {
    children: ReactNode,
@@ -16,12 +19,39 @@ export default function PrivateRoute({children}: PrivateRouteProps) {
    const dispatch = useDispatch();
    const wsClient = useContext<Client>(WsContext);
 
-
    useEffect(() => {
-      if (!authState.loggedIn && authState.user) {
+      const subscribeToNotifications = () => wsClient.subscribe(Topic.NOTIFICATIONS, (message: Message) => {
+         const notificationResponse: Response<Notification> = JSON.parse(message.body).body;
+         console.log(notificationResponse);
+
+         const {message: notificationMessage, type, userId} = notificationResponse.payload;
+
+         if (userId === authState.user?.id) {
+            switch (type) {
+               case NotificationType.INFO:
+                  toast.success(notificationMessage, infoToastOptions());
+                  break;
+               case NotificationType.SUCCESS:
+                  toast.success(notificationMessage, successToastOptions());
+                  break;
+               case NotificationType.ERROR:
+                  toast.error(notificationMessage, errorToastOptions());
+                  break;
+            }
+         }
+      });
+
+      if (authState.loggedIn && authState.user) {
+         setTimeout(() => {
+            subscribeToNotifications();
+         }, 2000);
+      } else if (!authState.loggedIn) {
          wsClient.disconnect(() => console.log("WS Client disconnected."));
          dispatch(endSession());
       }
+
+      return () => {
+      };
    }, [authState, dispatch, wsClient]);
 
    return authState.loggedIn ?

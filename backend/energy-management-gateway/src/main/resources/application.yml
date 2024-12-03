@@ -24,6 +24,10 @@ spring:
           uri: lb://device-management-service
           predicates:
             - Path=/dms/**
+        - id: mcs
+          uri: lb://monitoring-communication-service
+          predicates:
+            - Path=/mcs/**
 #        - id: ws-route
 #          uri: lb:ws://monitoring-communication-service
 #          predicates:

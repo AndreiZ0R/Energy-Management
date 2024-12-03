@@ -214,4 +214,4 @@ volumes:
   dms_db:
   mcs_db:
 
-# Todo: nginx reverse proxy
+# Todo: healthcheck for services gateway needs

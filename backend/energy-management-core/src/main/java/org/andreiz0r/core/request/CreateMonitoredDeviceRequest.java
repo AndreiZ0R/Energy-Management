@@ -9,5 +9,7 @@ import java.util.UUID;
 public record CreateMonitoredDeviceRequest(
         @JsonProperty UUID deviceId,
         @JsonProperty UUID userId,
+        @JsonProperty String description,
+        @JsonProperty String address,
         @JsonProperty Long maximumHourlyConsumption) {
 }

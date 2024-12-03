@@ -38,9 +38,8 @@ spring:
   #              replenishRate: 10
   #              burstCapacity: 20
   #              requestedTokens: 1
-# Todo: check this!
-#  main:
-#    web-application-type: reactive
+  main:
+    web-application-type: reactive
 
 # Eureka Service Discovery config
 eureka:

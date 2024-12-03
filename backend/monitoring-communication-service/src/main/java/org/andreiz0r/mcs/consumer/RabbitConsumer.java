@@ -40,6 +40,7 @@ public class RabbitConsumer {
         UUID deviceId = sensorData.deviceId();
         log.info("Received sensor data: {}", sensorData);
 
+        // Todo: computeIfPresent here
         if (lastMeasurements.containsKey(deviceId)) {
             Set<SensorDataDTO> measurements = lastMeasurements.get(deviceId);
             measurements.add(sensorData);

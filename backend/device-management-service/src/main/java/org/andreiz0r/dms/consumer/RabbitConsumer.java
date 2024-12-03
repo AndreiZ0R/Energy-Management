@@ -42,6 +42,11 @@ public class RabbitConsumer {
         UUID userId = eventData.userId();
         List<UUID> deviceIds = eventData.deviceIds();
 
+        if (Objects.isNull(deviceIds)) {
+            log.info("DeviceIds is null, new user has been created without devices, timestamp: {}", event.getTimestamp());
+            return;
+        }
+
         if (!deviceIds.isEmpty()) {
             Integer result = deviceService.updateDevicesWithUserId(deviceIds, userId);
 

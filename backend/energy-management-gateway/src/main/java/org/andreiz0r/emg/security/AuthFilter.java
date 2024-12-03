@@ -48,7 +48,9 @@ public class AuthFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(final ServerWebExchange exchange, final GatewayFilterChain chain) {
+        log.info("[INCOMING] {}", exchange.getRequest().getURI());
         if (shouldNotFilter(exchange.getRequest())) {
+            log.info("Whitelisted: {}", exchange.getRequest().getURI());
             return chain.filter(exchange);
         }
 

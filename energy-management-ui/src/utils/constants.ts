@@ -32,7 +32,7 @@ export const Endpoints = {
    auth: "/ums/rest/auth",
    devices: "/dms/rest/devices",
    users: "/ums/rest/users",
-   monitoredDevices: "mcs/rest/monitored-devices"
+   monitoredDevices: "/mcs/rest/monitored-devices"
 }
 
 export enum ThemeType {

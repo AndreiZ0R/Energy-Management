@@ -28,22 +28,19 @@ spring:
           uri: lb://monitoring-communication-service
           predicates:
             - Path=/mcs/**
-#        - id: ws-route
-#          uri: lb:ws://monitoring-communication-service
-#          predicates:
-#            - Path=/mcs/socket/**
       default-filters:
         - AddRequestHeader=proxied, true
         - StripPrefix=1
+      enabled: true
   #        - name: RequestRateLimiter
   #          args:
   #            redis-rate-limiter:
   #              replenishRate: 10
   #              burstCapacity: 20
   #              requestedTokens: 1
-
-  main:
-    web-application-type: reactive
+# Todo: check this!
+#  main:
+#    web-application-type: reactive
 
 # Eureka Service Discovery config
 eureka:

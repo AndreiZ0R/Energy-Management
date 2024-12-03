@@ -40,6 +40,12 @@ services:
     depends_on:
       eureka-sd:
         condition: service_healthy
+      ums:
+        condition: service_healthy
+      dms:
+        condition: service_healthy
+      mcs:
+        condition: service_healthy
     environment:
       EUREKA_URL: http://eureka-service-discovery:8761/eureka
     networks:
@@ -50,16 +56,13 @@ services:
     build:
       context: ./backend/user-management-service
       dockerfile: Dockerfile
-    container_name: user-management-service
     ports:
-      - "8001:8001"
+      - "8001"
     volumes:
       - ./backend/user-management-service:/app
     depends_on:
       eureka-sd:
         condition: service_healthy
-      api-gateway:
-        condition: service_started
       rabbitmq:
         condition: service_started
       ums_db:
@@ -72,6 +75,12 @@ services:
       RABBIT_HOST: rabbitmq_server
     networks:
       - services-net
+    scale: 2
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8001/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
   ums_db:
     image: postgres
@@ -94,16 +103,13 @@ services:
     build:
       context: ./backend/device-management-service
       dockerfile: Dockerfile
-    container_name: device-management-service
     ports:
-      - "8002:8002"
+      - "8002"
     volumes:
       - ./backend/device-management-service:/app
     depends_on:
       eureka-sd:
         condition: service_healthy
-      api-gateway:
-        condition: service_started
       rabbitmq:
         condition: service_started
       dms_db:
@@ -116,6 +122,12 @@ services:
       RABBIT_HOST: rabbitmq_server
     networks:
       - services-net
+    scale: 2
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8002/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
   dms_db:
     image: postgres
@@ -146,8 +158,6 @@ services:
     depends_on:
       eureka-sd:
         condition: service_healthy
-      api-gateway:
-        condition: service_started
       rabbitmq:
         condition: service_started
       mcs_db:
@@ -160,6 +170,11 @@ services:
       RABBIT_HOST: rabbitmq_server
     networks:
       - services-net
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8003/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
   mcs_db:
     image: postgres
@@ -187,7 +202,6 @@ services:
       - "5173:5173"
     volumes:
       - './energy-management-ui/src:/app/src'
-    #      - './data:/app/data'
     depends_on:
       eureka-sd:
         condition: service_healthy
@@ -213,5 +227,3 @@ volumes:
   ums_db:
   dms_db:
   mcs_db:
-
-# Todo: healthcheck for services gateway needs

@@ -1,8 +1,8 @@
-import {ChangeEventHandler, HTMLInputTypeAttribute, useState} from "react";
+import {ChangeEventHandler, HTMLInputTypeAttribute, InputHTMLAttributes, useState} from "react";
 
 import {FiEye, FiEyeOff} from "react-icons/fi";
 import {UseFormRegister} from "react-hook-form";
-import {BaseProps} from "../../utils/constants.ts";
+import {BaseProps} from "@/utils/constants.ts";
 
 type InputFieldProps = {
    label: string,
@@ -12,9 +12,9 @@ type InputFieldProps = {
    onChange?: ChangeEventHandler<HTMLInputElement>,
    name?: string,
    registerFn?: UseFormRegister<any>,
-} & BaseProps;
+} & BaseProps & InputHTMLAttributes<HTMLInputElement>;
 
-export default function InputField({label, type, value, onChange, errorLabel = null, additionalStyles, name, registerFn}: InputFieldProps) {
+export default function InputField({label, type, value, onChange, errorLabel = null, additionalStyles, name, registerFn, ...props}: InputFieldProps) {
    const [typeCopy, setTypeCopy] = useState<HTMLInputTypeAttribute>(type);
 
    const inputStyle = `peer m-0 block h-[58px] w-full rounded border border-solid ${errorLabel ? "border-red-400 text-red-400 focus:border-primary-color focus:text-primary-color" : "text-background-reverse border-primary-color focus:border-primary-color"} bg-transparent bg-clip-padding px-3 py-4 font-normal leading-tight transition duration-200 ease-linear placeholder:text-transparent focus:pb-[0.625rem] focus:pt-[1.625rem] focus:outline-none peer-focus:text-background-reverse [&:not(:placeholder-shown)]:pb-[0.625rem] [&:not(:placeholder-shown)]:pt-[1.625rem]`;
@@ -34,6 +34,7 @@ export default function InputField({label, type, value, onChange, errorLabel = n
                   {...registerFn(name)}
                   onChange={onChange}
                   placeholder=""
+                  {...props}
                />) :
                (<input
                   type={typeCopy}
@@ -43,6 +44,7 @@ export default function InputField({label, type, value, onChange, errorLabel = n
                   onChange={onChange}
                   name={name}
                   placeholder=""
+                  {...props}
                />)
             }
             <label

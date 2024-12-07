@@ -17,7 +17,8 @@ export const AppRoutes = {
    LOGIN: "/login",
    REGISTER: "/register",
    MANAGER_DASHBOARD: "/manager-dashboard",
-   DEVICES: "/devices"
+   DEVICES: "/devices",
+   CHATS: "/chats"
 };
 
 export const HttpMethods = {
@@ -32,7 +33,13 @@ export const Endpoints = {
    auth: "/ums/rest/auth",
    devices: "/dms/rest/devices",
    users: "/ums/rest/users",
-   monitoredDevices: "/mcs/rest/monitored-devices"
+   monitoredDevices: "/mcs/rest/monitored-devices",
+   chats: "/cs/rest/chats"
+}
+
+export const WebsocketPaths = {
+   sendChatMessage: "/app/chat.send",
+   sendChatNotification: "/app/chat.notifyTyping",
 }
 
 export enum ThemeType {

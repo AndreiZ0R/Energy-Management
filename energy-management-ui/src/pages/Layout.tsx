@@ -1,6 +1,6 @@
 import {Outlet} from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar.tsx";
-import {AuthState, selectAuthState} from "../redux/slices";
+import {AuthState, selectAuthState} from "@/redux/slices";
 import {useSelector} from "react-redux";
 import {Toaster} from "react-hot-toast";
 

@@ -9,6 +9,7 @@ import {useNavigate} from "react-router-dom";
 import {AppRoutes, ThemeType} from "../../utils/constants.ts";
 import {MdOutlineWbSunny} from "react-icons/md";
 import {IoIosMoon} from "react-icons/io";
+import {IoChatbox} from "react-icons/io5";
 
 export default function Navbar() {
    const dispatch = useDispatch();
@@ -59,6 +60,12 @@ export default function Navbar() {
                   className={`flex flex-row ${expanded && "hover:bg-primary-color"} w-full rounded-xl px-3 py-2 cursor-pointer items-center justify-start gap-5 transition-all`}>
                   <RiDeviceFill className={`text-background-reverse text-2xl cursor-pointer ${!expanded && "hover:text-primary-color"} transition-all`}/>
                   {expanded && <span className="text-background-reverse animate-slideIn">Devices</span>}
+               </div>
+               <div
+                  onClick={() => navigate(AppRoutes.CHATS)}
+                  className={`flex flex-row ${expanded && "hover:bg-primary-color"} w-full rounded-xl px-3 py-2 cursor-pointer items-center justify-start gap-5 transition-all`}>
+                  <IoChatbox className={`text-background-reverse text-2xl cursor-pointer ${!expanded && "hover:text-primary-color"} transition-all`}/>
+                  {expanded && <span className="text-background-reverse animate-slideIn">Chats</span>}
                </div>
                <div
                   onClick={switchTheme}

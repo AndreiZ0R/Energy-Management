@@ -1,13 +1,15 @@
-import {AuthenticationResponse, User} from "../../models/entities.ts";
-import {Constants} from "../../utils/constants.ts";
+import {AuthenticationResponse, User} from "@/models/entities.ts";
+import {Constants} from "@/utils/constants.ts";
 import Cookies from "js-cookie";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../store.ts";
+import {Topic} from "@/models/transfer.ts";
 
 export interface AuthState {
    user: User | null;
    token: string | null;
    loggedIn: boolean;
+   subscriptions: string[]
 }
 
 const getInitialUser = (): User | null => {
@@ -23,6 +25,7 @@ const initialState: AuthState = {
    user: getInitialUser(),
    token: Cookies.get(Constants.TOKEN) ?? null,
    loggedIn: !!Cookies.get(Constants.TOKEN),
+   subscriptions: [],
 }
 
 export const authSlice = createSlice({
@@ -36,15 +39,24 @@ export const authSlice = createSlice({
          Cookies.remove(Constants.SESSION_ID);
          localStorage.removeItem(Constants.USER);
       },
+
       startSession: (state, action: PayloadAction<AuthenticationResponse>) => {
          state.user = action.payload.user;
          state.loggedIn = true;
          Cookies.set(Constants.TOKEN, action.payload.token, {expires: 1, secure: true});
          localStorage.setItem(Constants.USER, JSON.stringify(state.user));
       },
+
+      subscribe: (state, action: PayloadAction<Topic>) => {
+         state.subscriptions.push(action.payload);
+      }
    },
 });
 
-export const {startSession, endSession} = authSlice.actions;
+export const {
+   startSession,
+   endSession,
+   subscribe
+} = authSlice.actions;
 export const selectAuthState = (state: RootState) => state.auth as AuthState;
 export default authSlice.reducer;

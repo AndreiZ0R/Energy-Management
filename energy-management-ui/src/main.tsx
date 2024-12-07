@@ -11,9 +11,7 @@ import LoginPage from "./pages/LoginPage.tsx";
 import RegisterPage from "./pages/RegisterPage.tsx";
 import ManageDevicesPage from "./pages/ManageDevicesPage.tsx";
 import ManagerDashboardPage from "./pages/ManagerDashboardPage.tsx";
-import SockJS from "sockjs-client";
-import {Client, over} from "stompjs";
-import {createContext} from "react";
+import ChatsPage from "@/pages/ChatsPage.tsx";
 
 const router = createBrowserRouter([
    {
@@ -37,40 +35,40 @@ const router = createBrowserRouter([
       }, {
          path: AppRoutes.MANAGER_DASHBOARD,
          element: <PrivateRoute><ManagerDashboardPage/></PrivateRoute>
+      }, {
+         path: AppRoutes.CHATS,
+         element: <PrivateRoute><ChatsPage/></PrivateRoute>
       }]
    }
 ]);
 
-const stompClient: Client = over(new SockJS('/socket'));
-stompClient.connect({}, frame => {
-   console.log("WS Client connected: ", frame);
+// export type WsContext = {
+//    client: Client | null;
+//    chatClient: Client | null;
+// };
 
-   // stompClient.subscribe(Topic.NOTIFICATIONS, (message: Message) => {
-   //    const notificationResponse: Response<Notification> = JSON.parse(message.body).body;
-   //    console.log(notificationResponse);
-   //
-   //    const {message: notificationMessage, type} = notificationResponse.payload;
-   //
-   //    switch (type) {
-   //       case NotificationType.INFO:
-   //          toast.success(notificationMessage, infoToastOptions());
-   //          break;
-   //       case NotificationType.SUCCESS:
-   //          toast.success(notificationMessage, successToastOptions());
-   //          break;
-   //       case NotificationType.ERROR:
-   //          toast.error(notificationMessage, errorToastOptions());
-   //          break;
-   //    }
-   // });
-})
+// const stompClient: Client = over(new SockJS('/socket'));
+// stompClient.connect({}, frame => {
+//    console.log("WS Client connected: ", frame);
+// });
+//
+// const chatStompClient: Client = over(new SockJS('/chatSocket'));
+// chatStompClient.connect({}, frame => {
+//    console.log("Chat WS Client connected: ", frame);
+// });
 
-export const WsContext = createContext<Client>(stompClient);
+// const defaultWsContextValue = {
+//    client: null,
+//    chatClient: null
+// };
+//
+// export const WsContext = createContext<WsContext>(defaultWsContextValue);
+
 
 createRoot(document.getElementById('root')!).render(
    <Provider store={store}>
-      <WsContext.Provider value={stompClient}>
-         <RouterProvider router={router}/>
-      </WsContext.Provider>
+      {/*<WsContext.Provider value={defaultWsContextValue}>*/}
+      <RouterProvider router={router}/>
+      {/*</WsContext.Provider>*/}
    </Provider>
 )

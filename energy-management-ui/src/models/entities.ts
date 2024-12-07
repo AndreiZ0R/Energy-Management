@@ -33,6 +33,14 @@ interface MonitoredDevice extends BaseEntity, Device {
    hourlyConsumptions: HourlyConsumption[];
 }
 
+interface ChatMessage extends BaseEntity {
+   senderId: string;
+   receiverId: string;
+   message: string;
+   edited: boolean;
+   timestamp: Date;
+}
+
 interface AuthenticationResponse extends BaseEntity {
    user: User;
    token: string;
@@ -44,5 +52,6 @@ export type {
    Device,
    HourlyConsumption,
    MonitoredDevice,
+   ChatMessage,
    AuthenticationResponse
 }

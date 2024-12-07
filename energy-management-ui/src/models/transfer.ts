@@ -40,6 +40,10 @@ interface UpdateUserRequest {
    deviceIds: string[];
 }
 
+interface GetConversationRequest {
+   senderId: string;
+   receiverId: string;
+}
 
 interface ClientError {
    message: string;
@@ -52,7 +56,8 @@ enum ResponseStatus {
    FORBIDDEN = "FORBIDDEN"
 }
 
-interface Response<T extends BaseEntity | BaseEntity[] | Notification> {
+// Todo: extract BaseNotification after updating MCS
+interface Response<T extends BaseEntity | BaseEntity[] | Notification | ChatNotification> {
    payload: T;
    message: string;
    status: ResponseStatus;
@@ -71,8 +76,21 @@ interface Notification {
    userId: string;
 }
 
+export enum ChatNotificationType {
+   START_TYPING = "START_TYPING",
+   STOP_TYPING = "STOP_TYPING",
+}
+
+interface ChatNotification {
+   senderId: string;
+   receiverId: string;
+   type: ChatNotificationType;
+}
+
 export enum Topic {
    NOTIFICATIONS = "/topic/notifications/",
+   CHAT = "/topic/chat/",
+   CHAT_NOTIFICATIONS = "/topic/chatNotification/",
 }
 
 export type {
@@ -85,5 +103,7 @@ export type {
    GetDevicesByIdRequest,
    UpdateDeviceRequest,
    UpdateUserRequest,
+   GetConversationRequest,
    Notification,
+   ChatNotification,
 }

@@ -2,8 +2,16 @@ import {fetchBaseQuery} from "@reduxjs/toolkit/query";
 import {Constants, Endpoints, HeaderUtils, HttpMethods} from "../utils/constants.ts";
 import Cookies from "js-cookie";
 import {createApi} from "@reduxjs/toolkit/query/react";
-import {AuthenticationResponse, Device, MonitoredDevice, User} from "../models/entities.ts";
-import {AuthenticationRequest, CreateDeviceRequest, CreateUserRequest, Response, UpdateDeviceRequest, UpdateUserRequest} from "../models/transfer.ts";
+import {AuthenticationResponse, ChatMessage, Device, MonitoredDevice, User} from "../models/entities.ts";
+import {
+   AuthenticationRequest,
+   CreateDeviceRequest,
+   CreateUserRequest,
+   GetConversationRequest,
+   Response,
+   UpdateDeviceRequest,
+   UpdateUserRequest
+} from "../models/transfer.ts";
 
 
 const customBaseQuery = fetchBaseQuery({
@@ -27,7 +35,7 @@ const customBaseQuery = fetchBaseQuery({
 export const api = createApi({
    reducerPath: "api",
    baseQuery: customBaseQuery,
-   tagTypes: ["Users", "Devices", "DevicesById", "MonitoredDevices"],
+   tagTypes: ["Users", "Devices", "DevicesById", "MonitoredDevices", "Chats"],
    endpoints: (builder) => ({
 
       login: builder.mutation<Response<AuthenticationResponse>, AuthenticationRequest>({
@@ -128,6 +136,17 @@ export const api = createApi({
          providesTags: ["MonitoredDevices"]
       }),
 
+      // --------------- Chats Queries ---------------
+      getConversation: builder.query<Response<ChatMessage[]>, GetConversationRequest>({
+         query: (request: GetConversationRequest) => ({
+            url: `${Endpoints.chats}/conversation`,
+            method: HttpMethods.GET,
+            params: request,
+         }),
+
+         // providesTags: ["Chats"]
+      }),
+
    })
 });
 
@@ -143,5 +162,6 @@ export const {
    useCreateUserMutation,
    useUpdateUserMutation,
    useDeleteUserMutation,
-   useGetAllMonitoredDevicesQuery
+   useGetAllMonitoredDevicesQuery,
+   useLazyGetConversationQuery
 } = api;

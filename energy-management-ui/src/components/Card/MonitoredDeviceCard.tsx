@@ -13,9 +13,7 @@ export default function MonitoredDeviceCard({monitoredDevice}: MonitoredDeviceCa
    const [date, setDate] = useState<Date>(new Date());
 
    const sameDay = (firstDate: Date, secondDate: Date): boolean => {
-      return firstDate.getFullYear() === secondDate.getFullYear() &&
-         secondDate.getMonth() === secondDate.getMonth() &&
-         firstDate.getDay() === secondDate.getDay();
+      return new Intl.DateTimeFormat('en-US').format(firstDate) === new Intl.DateTimeFormat('en-US').format(secondDate);
    }
 
    const getChartData = () => {

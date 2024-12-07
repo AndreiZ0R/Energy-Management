@@ -1,5 +1,5 @@
 import {useGetDevicesByIdsQuery} from "../redux/api.ts";
-import {AuthState, selectAuthState} from "../redux/slices";
+import {AuthState, selectAuthState} from "@/redux/slices";
 import {useSelector} from "react-redux";
 import {Device} from "../models/entities.ts";
 import {SlEnergy} from "react-icons/sl";
@@ -14,7 +14,7 @@ export default function ManageDevicesPage() {
          {devicesResponse?.payload.length === 0 ?
             <span className="text-background-reverse">No devices yet.</span> :
             <div className="grid grid-cols-3 gap-5 ">
-               {devicesResponse?.payload.map(device => <DeviceCard device={device}/>)}
+               {devicesResponse?.payload.map(device => <DeviceCard key={device.id} device={device}/>)}
             </div>
          }
       </div>

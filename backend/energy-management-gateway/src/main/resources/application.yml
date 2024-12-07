@@ -28,6 +28,10 @@ spring:
           uri: lb://monitoring-communication-service
           predicates:
             - Path=/mcs/**
+        - id: cs
+          uri: lb://chat-service
+          predicates:
+            - Path=/cs/**
       default-filters:
         - AddRequestHeader=proxied, true
         - StripPrefix=1

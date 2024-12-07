@@ -1,4 +1,4 @@
-package org.andreiz0r.core;
+package org.andreiz0r.core.messaging;
 
 
 import org.andreiz0r.core.enums.NotificationType;

@@ -1,17 +1,14 @@
-package org.andreiz0r.core.topic;
+package org.andreiz0r.core.messaging;
 
 public enum Topic {
-    MESSAGES("messages"),
+    CHAT("chat"),
+    CHAT_NOTIFICATION("chatNotification"),
     NOTIFICATIONS("notifications");
 
     private final String name;
 
     Topic(final String s) {
         name = s;
-    }
-
-    public boolean equalsName(String otherName) {
-        return name.equals(otherName);
     }
 
     @Override

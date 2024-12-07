@@ -2,12 +2,12 @@ package org.andreiz0r.mcs.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.andreiz0r.core.Notification;
+import org.andreiz0r.core.messaging.Notification;
 import org.andreiz0r.core.enums.NotificationType;
 import org.andreiz0r.core.mapper.Mapper;
 import org.andreiz0r.core.request.CreateMonitoredDeviceRequest;
 import org.andreiz0r.core.request.UpdateMonitoredDeviceRequest;
-import org.andreiz0r.core.topic.Topic;
+import org.andreiz0r.core.messaging.Topic;
 import org.andreiz0r.mcs.entity.HourlyConsumption;
 import org.andreiz0r.mcs.entity.MonitoredDevice;
 import org.andreiz0r.mcs.repository.HourlyConsumptionRepository;

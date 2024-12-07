@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.andreiz0r.core.exception.ClientError;
 import org.andreiz0r.core.response.Response;
-import org.andreiz0r.core.topic.Topic;
+import org.andreiz0r.core.messaging.Topic;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +18,7 @@ public class WebsocketWrapper {
     public void sendSuccessMessage(final Object body, final Topic topic) {
         sendSuccessMessage(body, topic, "");
     }
-
+    //todo: websocket message!
     public void sendSuccessMessage(final Object body, final Topic topic, final String path) {
         String finalPath = topic.toString() + path;
         log.info("Sending message to {}", finalPath);

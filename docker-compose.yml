@@ -260,6 +260,7 @@ services:
     environment:
       API_URL: http://energy-management-gateway:8000
       WS_URL: http://monitoring-communication-service:8003
+      CHAT_WS_URL: http://chat-service:8004
     networks:
       - services-net
 

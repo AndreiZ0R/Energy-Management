@@ -2,6 +2,10 @@ interface BaseEntity {
    id: string;
 }
 
+interface BaseResponse {
+   id: null;
+}
+
 export enum UserRole {
    USER = "User",
    MANAGER = "Manager"
@@ -41,17 +45,24 @@ interface ChatMessage extends BaseEntity {
    timestamp: Date;
 }
 
-interface AuthenticationResponse extends BaseEntity {
+interface MessageStatus extends BaseResponse {
+   userId: string;
+   lastReadMessageId: string;
+}
+
+interface AuthenticationResponse extends BaseResponse {
    user: User;
    token: string;
 }
 
 export type {
    BaseEntity,
+   BaseResponse,
    User,
    Device,
    HourlyConsumption,
    MonitoredDevice,
    ChatMessage,
+   MessageStatus,
    AuthenticationResponse
 }

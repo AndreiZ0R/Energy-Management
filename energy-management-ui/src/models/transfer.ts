@@ -1,4 +1,4 @@
-import {BaseEntity, UserRole} from "./entities.ts";
+import {BaseEntity, BaseResponse, ChatMessage, MessageStatus, UserRole} from "./entities.ts";
 
 interface AuthenticationRequest {
    username: string;
@@ -57,7 +57,7 @@ enum ResponseStatus {
 }
 
 // Todo: extract BaseNotification after updating MCS
-interface Response<T extends BaseEntity | BaseEntity[] | Notification | ChatNotification> {
+interface Response<T extends BaseEntity | BaseEntity[] | BaseResponse | BaseResponse[] | BaseNotification | BaseNotification[]> {
    payload: T;
    message: string;
    status: ResponseStatus;
@@ -70,7 +70,11 @@ export enum NotificationType {
    ERROR = "ERROR"
 }
 
-interface Notification {
+interface BaseNotification {
+   id: null;
+}
+
+interface Notification extends BaseNotification {
    message: string;
    type: NotificationType;
    userId: string;
@@ -81,16 +85,29 @@ export enum ChatNotificationType {
    STOP_TYPING = "STOP_TYPING",
 }
 
-interface ChatNotification {
+interface ChatNotification extends BaseNotification {
    senderId: string;
    receiverId: string;
+   messageId: string | null;
    type: ChatNotificationType;
+}
+
+interface MessageAcknowledgement extends BaseNotification {
+   messageId: string;
+   acknowledgedBy: string;
+   target: string;
 }
 
 export enum Topic {
    NOTIFICATIONS = "/topic/notifications/",
    CHAT = "/topic/chat/",
    CHAT_NOTIFICATIONS = "/topic/chatNotification/",
+   ACK_MESSAGE = "/topic/ackMessage/"
+}
+
+interface ConversationDetails extends BaseResponse {
+   messages: ChatMessage[];
+   messageStatus: MessageStatus;
 }
 
 export type {
@@ -106,4 +123,6 @@ export type {
    GetConversationRequest,
    Notification,
    ChatNotification,
+   MessageAcknowledgement,
+   ConversationDetails
 }

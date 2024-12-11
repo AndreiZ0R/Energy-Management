@@ -5,24 +5,25 @@ import illustration from "@/assets/chat.png";
 import {useEffect, useRef, useState} from "react";
 import {AuthState, selectAuthState} from "@/redux/slices";
 import {useSelector} from "react-redux";
-import {formatHoursMinutes} from "@/utils/date-format.ts";
 import {ChatNotificationType} from "@/models/transfer.ts";
+import ChatBubble from "@/components/Chat/ChatBubble.tsx";
 
 type ViewChatProps = {
    selectedUser: User | null;
    onEnterPressed: (text: string) => void;
    chatMessages: ChatMessage[];
+   lastReadMessageId: string;
    onType: (type: ChatNotificationType) => void;
    typing: boolean;
 };
 
-export default function ViewChat({selectedUser, onEnterPressed, chatMessages, onType, typing}: ViewChatProps) {
+export default function ViewChat({selectedUser, onEnterPressed, chatMessages, onType, typing, lastReadMessageId}: ViewChatProps) {
    const authState: AuthState = useSelector(selectAuthState);
    const [messageText, setMessageText] = useState<string>("");
    const [hasStartedTyping, setHasStartedTyping] = useState<boolean>(false);
    const messagesRef = useRef<HTMLDivElement>(null);
 
-   const isMyMessage = (message: ChatMessage): boolean => {
+   const isOwnMessage = (message: ChatMessage): boolean => {
       return authState.user?.id === message.senderId;
    }
 
@@ -47,15 +48,16 @@ export default function ViewChat({selectedUser, onEnterPressed, chatMessages, on
          <div className="w-full h-[1px] bg-primary-color my-2"/>
 
          <div className="h-full w-full overflow-auto scrollbar my-2 px-2">
-            {chatMessages.map((message: ChatMessage) => (
-               <div className={`flex flex-row w-full ${isMyMessage(message) ? "justify-end" : "justify-start"}`} key={message.id}>
-                  <div className={`px-3 py-2 w-fit rounded-xl ${isMyMessage(message) ? "bg-primary-color" : "bg-accent-color"} my-1`}>
-                     <div className="text-xl text-white">{message.message}</div>
-                     <div className="text-xs text-gray-300">{formatHoursMinutes(message.timestamp)}</div>
-                  </div>
-               </div>
-            ))
-            }
+            {chatMessages.map((message: ChatMessage) =>
+               <ChatBubble
+                  key={message.id}
+                  chatMessage={message}
+                  ownMessage={isOwnMessage(message)}
+                  hasLastRead={lastReadMessageId === message.id}
+                  // Todo: optimization to show avatar here, it loads slow otherwise
+                  // avatar={getAvatarWithSize(getMessageBubbleSeed(message), 12)}
+               />
+            )}
             <div ref={messagesRef}/>
          </div>
 

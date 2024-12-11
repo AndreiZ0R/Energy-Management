@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.andreiz0r.core.exception.ClientError;
 import org.andreiz0r.core.request.UpdateChatMessageRequest;
 import org.andreiz0r.core.response.Response;
+import org.andreiz0r.cs.dto.ConversationDetailsDTO;
 import org.andreiz0r.cs.entity.ChatMessage;
 import org.andreiz0r.cs.service.ChatService;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,7 +49,7 @@ public class ChatRestController {
     }
 
     @GetMapping("/conversation")
-    public Response<List<ChatMessage>> findConversation(@RequestParam final UUID senderId, @RequestParam final UUID receiverId) {
+    public Response<ConversationDetailsDTO> findConversation(@RequestParam final UUID senderId, @RequestParam final UUID receiverId) {
         return chatService.findConversation(senderId, receiverId)
                 .map(Response::successResponse)
                 .orElse(Response.failureResponse(

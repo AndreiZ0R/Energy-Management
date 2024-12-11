@@ -40,6 +40,7 @@ export const Endpoints = {
 export const WebsocketPaths = {
    sendChatMessage: "/app/chat.send",
    sendChatNotification: "/app/chat.notifyTyping",
+   acknowledgeMessage: "/app/chat.ackMessage"
 }
 
 export enum ThemeType {

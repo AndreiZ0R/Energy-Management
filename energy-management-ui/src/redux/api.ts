@@ -1,17 +1,18 @@
 import {fetchBaseQuery} from "@reduxjs/toolkit/query";
-import {Constants, Endpoints, HeaderUtils, HttpMethods} from "../utils/constants.ts";
+import {Constants, Endpoints, HeaderUtils, HttpMethods} from "@/utils/constants.ts";
 import Cookies from "js-cookie";
 import {createApi} from "@reduxjs/toolkit/query/react";
-import {AuthenticationResponse, ChatMessage, Device, MonitoredDevice, User} from "../models/entities.ts";
+import {AuthenticationResponse, Device, MonitoredDevice, User} from "@/models/entities.ts";
 import {
    AuthenticationRequest,
+   ConversationDetails,
    CreateDeviceRequest,
    CreateUserRequest,
    GetConversationRequest,
    Response,
    UpdateDeviceRequest,
    UpdateUserRequest
-} from "../models/transfer.ts";
+} from "@/models/transfer.ts";
 
 
 const customBaseQuery = fetchBaseQuery({
@@ -137,7 +138,7 @@ export const api = createApi({
       }),
 
       // --------------- Chats Queries ---------------
-      getConversation: builder.query<Response<ChatMessage[]>, GetConversationRequest>({
+      getConversation: builder.query<Response<ConversationDetails>, GetConversationRequest>({
          query: (request: GetConversationRequest) => ({
             url: `${Endpoints.chats}/conversation`,
             method: HttpMethods.GET,

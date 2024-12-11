@@ -8,6 +8,7 @@ EMG="Energy Management Gateway"
 UMS="User Management Service"
 DMS="Device Management Service"
 MCS="Monitoring Communication Service"
+CS="Chat Service"
 
 BASE_PATH="D:\Facultate\An 4\Sem 1\Sisteme Distribuite (SD)\project\backend"
 
@@ -62,12 +63,19 @@ print_success
 echo "Building ${MCS}..."
 # shellcheck disable=SC2164
 cd "${BASE_PATH}\monitoring-communication-service"
-mvn clean install -DskipTests=true || { echo "FAILED to build ${DMS}" ; exit 5; }
+mvn clean install -DskipTests=true || { echo "FAILED to build ${MCS}" ; exit 5; }
+print_success
+
+# Build CS
+echo "Building ${CS}..."
+# shellcheck disable=SC2164
+cd "${BASE_PATH}\chat-service"
+mvn clean install -DskipTests=true || { echo "FAILED to build ${CS}" ; exit 6; }
 print_success
 
 # ------------------------- DOCKER -------------------------
 echo "Running docker compose"
-docker-compose up || { echo "Docker compose failed" ; exit 6; }
+docker-compose up || { echo "Docker compose failed" ; exit 7; }
 
 
 

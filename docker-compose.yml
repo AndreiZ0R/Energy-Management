@@ -46,6 +46,8 @@ services:
         condition: service_healthy
       mcs:
         condition: service_healthy
+      cs:
+        condition: service_healthy
     environment:
       EUREKA_URL: http://eureka-service-discovery:8761/eureka
     networks:
@@ -192,6 +194,50 @@ services:
       - services-net
     restart: unless-stopped
 
+  # ----------- CHAT-SERVICE -----------
+  cs:
+    build:
+      context: ./backend/chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./backend/chat-service:/app
+    depends_on:
+      eureka-sd:
+        condition: service_healthy
+      cs_db:
+        condition: service_started
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://mcs_db:5432/mcs_db
+      EUREKA_URL: http://eureka-service-discovery:8761/eureka
+    networks:
+      - services-net
+    healthcheck:
+      test: "curl --fail --silent http://localhost:8004/actuator/health | grep UP || exit 1"
+      interval: 10s
+      timeout: 10s
+      retries: 10
+
+  cs_db:
+    image: postgres
+    container_name: cs_db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: mcs_db
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    volumes:
+      - cs_db:/var/lib/postgresql/data
+    networks:
+      - services-net
+    restart: unless-stopped
+
   # ----------- Frontend -----------
   frontend:
     build:
@@ -227,3 +273,4 @@ volumes:
   ums_db:
   dms_db:
   mcs_db:
+  cs_db:

@@ -1,92 +1,75 @@
-import {useContext, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import {ChatMessage, User} from "@/models/entities.ts";
-import {ChatNotification, ChatNotificationType, Response, Topic} from "@/models/transfer.ts";
-import {Message} from "stompjs";
-import {infoToastOptions} from "@/utils/toast.tsx";
-import {toast} from "react-hot-toast";
+import {ChatNotification, ChatNotificationType, ConversationDetails, Response} from "@/models/transfer.ts";
 import {useGetAllUsersQuery, useLazyGetConversationQuery} from "@/redux/api.ts";
 import ChatCard from "@/components/Card/ChatCard.tsx";
-import {AuthState, selectAuthState, subscribe} from "@/redux/slices";
+import {AuthState, selectAuthState} from "@/redux/slices";
 import {useDispatch, useSelector} from "react-redux";
-import {WsContext} from "@/pages/PrivateRoute.tsx";
 import ViewChat from "@/components/Chat/ViewChat.tsx";
 import {WebsocketPaths} from "@/utils/constants.ts";
+import {pushMessages, refreshState, selectSocketState, setLastReadMessage, setTypingMap, SocketState} from "@/redux/slices/socket-slice.ts";
 
 export default function ChatsPage() {
    const dispatch = useDispatch()
    const authState: AuthState = useSelector(selectAuthState);
-   const {chatClient: wsClient} = useContext<WsContext>(WsContext);
+   const socketState: SocketState = useSelector(selectSocketState);
    const {data: usersResponse} = useGetAllUsersQuery();
+   const [triggerGetConversation] = useLazyGetConversationQuery();
+
    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
-   const [triggerGetConversation] = useLazyGetConversationQuery();
-   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-
-   const [typingMap, setTypingMap] = useState<Record<string, boolean>>({});
-
-   const formatNotificationMessage = (chatMessage: ChatMessage): string => {
-      const foundUser = usersResponse?.payload.find(user => user.id === chatMessage.senderId);
-      if (foundUser) {
-         return `${foundUser.username}: ${chatMessage.message}`
-      }
-
-      return "You have one new message";
-   }
-
-   const onChatMessageReceived = (message: Message) => {
-      const chatMessageResponse: Response<ChatMessage> = JSON.parse(message.body).body;
-      setChatMessages(oldArray => [...oldArray, chatMessageResponse.payload]);
-
-      if (usersResponse && !window.location.pathname.includes("chats") && chatMessageResponse.payload.receiverId === authState?.user?.id) {
-         toast.success(formatNotificationMessage(chatMessageResponse.payload), infoToastOptions());
-      }
-   }
-
-   const onChatNotificationReceived = (message: Message) => {
-      const notificationResponse: Response<ChatNotification> = JSON.parse(message.body).body;
-      const {type, senderId} = notificationResponse.payload;
-
-      setTypingMap(prev => ({
-         ...prev,
-         [senderId]: type === ChatNotificationType.START_TYPING,
-      }));
-   }
-
    const onChatClick = (user: User) => {
+      const lastUser = selectedUser;
       setSelectedUser(selectedUser === user ? null : user);
+
+      if (lastUser !== user || selectedUser === null) {
+         dispatch(refreshState());
+      }
    }
 
    const sendChatMessage = (text: string) => {
-      if (wsClient) {
-         const chatMessage: Partial<ChatMessage> = {
-            senderId: authState.user?.id,
-            receiverId: selectedUser?.id,
-            message: text,
-            edited: false
-         };
+      const chatMessage: Partial<ChatMessage> = {
+         senderId: authState.user?.id,
+         receiverId: selectedUser?.id,
+         message: text,
+         edited: false
+      };
 
-         wsClient.send(WebsocketPaths.sendChatMessage, {}, JSON.stringify(chatMessage));
-      }
+      socketState.chatClient.send(WebsocketPaths.sendChatMessage, {}, JSON.stringify(chatMessage));
    }
 
    const sendChatNotification = (type: ChatNotificationType) => {
-      if (wsClient) {
-         const notification: Partial<ChatNotification> = {
-            senderId: authState.user?.id,
-            receiverId: selectedUser?.id,
-            type: type
-         };
-
-         wsClient.send(WebsocketPaths.sendChatNotification, {}, JSON.stringify(notification));
-      }
+      const notification: Partial<ChatNotification> = {
+         senderId: authState.user?.id,
+         receiverId: selectedUser?.id,
+         type: type
+      };
+      socketState.chatClient.send(WebsocketPaths.sendChatNotification, {}, JSON.stringify(notification));
    }
 
    useEffect(() => {
       if (authState.user && selectedUser) {
-         triggerGetConversation({senderId: authState.user.id, receiverId: selectedUser.id}, false).unwrap()
-            .then(data => setChatMessages(data.payload));
+         const senderId = authState.user.id;
+         const receiverId = selectedUser.id;
+
+         triggerGetConversation({senderId: senderId, receiverId: receiverId}, false).unwrap()
+            .then((data: Response<ConversationDetails>) => {
+               if (data.payload?.messageStatus?.lastReadMessageId) {
+                  const lastId = data.payload.messageStatus.lastReadMessageId;
+                  dispatch(setLastReadMessage(lastId));
+                  // setMessagesState(prev => ({
+                  //    ...prev,
+                  //    lastReadMessageId: lastId,
+                  // }));
+               }
+               dispatch(pushMessages(data.payload.messages))
+               // setMessagesState(prev => ({
+               //    ...prev,
+               //    chatMessages: data.payload.messages
+               // }));
+            });
       }
-   }, [selectedUser, authState.user, triggerGetConversation]);
+   }, [selectedUser, authState.user, triggerGetConversation, dispatch]);
 
    useEffect(() => {
       if (usersResponse) {
@@ -95,31 +78,9 @@ export default function ChatsPage() {
             return acc;
          }, {} as Record<string, boolean>);
 
-         setTypingMap(userStatus);
+         dispatch(setTypingMap(userStatus));
       }
-
-      const subscribeToChats = () => {
-         if (wsClient && !authState.subscriptions.includes(Topic.CHAT)) {
-            dispatch(subscribe(Topic.CHAT));
-            wsClient.subscribe(`/user${Topic.CHAT}`, onChatMessageReceived);
-         }
-      };
-
-      const subscribeToChatNotifications = () => {
-         if (wsClient && !authState.subscriptions.includes(Topic.CHAT_NOTIFICATIONS)) {
-            dispatch(subscribe(Topic.CHAT_NOTIFICATIONS));
-            wsClient.subscribe(`/user${Topic.CHAT_NOTIFICATIONS}`, onChatNotificationReceived);
-         }
-      }
-
-      setTimeout(() => {
-         subscribeToChats();
-         subscribeToChatNotifications();
-      }, 2000);
-
-      return () => {
-      };
-   }, [usersResponse]);
+   }, [dispatch, usersResponse]);
 
    return (
       <div className="w-full h-screen bg-background-accent overflow-auto text-background-reverse flex flex-row py-3 px-2">
@@ -147,7 +108,7 @@ export default function ChatsPage() {
                         subLabel={user.role}
                         onClick={() => onChatClick(user)}
                         selected={selectedUser?.id === user.id}
-                        typing={typingMap[user.id]}
+                        typing={socketState.typingMap[user.id]}
                      />
                   ))}
             </div>
@@ -157,9 +118,10 @@ export default function ChatsPage() {
          <ViewChat
             selectedUser={selectedUser}
             onEnterPressed={sendChatMessage}
-            chatMessages={chatMessages}
+            chatMessages={socketState.messages}
             onType={sendChatNotification}
-            typing={typingMap[selectedUser?.id ?? ""]}
+            typing={socketState.typingMap[selectedUser?.id ?? ""]}
+            lastReadMessageId={socketState.lastReadMessageId}
          />
       </div>
    )

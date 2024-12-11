@@ -12,7 +12,6 @@ type ChatCardProps = {
 
 export default function ChatCard({onClick, label, subLabel, selected, forDisplay = false, typing = false}: ChatCardProps) {
 
-
    return (
       <div
          className={`${selected && "bg-primary-color/25"} group w-full p-2 flex flex-row items-center justify-between ${!forDisplay && "hover:bg-background-color cursor-pointer"} rounded-xl transition-all animate-fadeIn gap-10`}

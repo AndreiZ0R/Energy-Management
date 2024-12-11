@@ -1,21 +1,15 @@
 import {useDispatch, useSelector} from "react-redux";
-import {AuthState, endSession, selectAuthState} from "../redux/slices";
+import {AuthState, endSession, selectAuthState} from "@/redux/slices";
 import {Navigate, useLocation} from 'react-router-dom';
-import {createContext, ReactNode, useEffect, useState} from "react";
-import {AppRoutes} from "../utils/constants.ts";
-import {Client, Message, over} from "stompjs";
-import SockJS from "sockjs-client";
-import {Notification, NotificationType, Response, Topic} from "@/models/transfer.ts";
+import {ReactNode, useEffect} from "react";
+import {AppRoutes, WebsocketPaths} from "../utils/constants.ts";
+import {Message} from "stompjs";
+import {ChatNotification, ChatNotificationType, MessageAcknowledgement, Notification, NotificationType, Response, Topic} from "@/models/transfer.ts";
 import {toast} from "react-hot-toast";
 import {errorToastOptions, infoToastOptions, successToastOptions} from "@/utils/toast.tsx";
-
-export type WsContext = {
-   client: Client | null;
-   chatClient: Client | null;
-};
-
-const defaultWsContextValue = {client: null, chatClient: null};
-export const WsContext = createContext<WsContext>(defaultWsContextValue);
+import {pushMessage, selectSocketState, setLastReadMessage, setTypingMap, SocketState} from "@/redux/slices/socket-slice.ts";
+import {ChatMessage} from "@/models/entities.ts";
+import {isOnPath} from "@/utils/uriHelper.ts";
 
 type PrivateRouteProps = {
    children: ReactNode,
@@ -25,16 +19,15 @@ export default function PrivateRoute({children}: PrivateRouteProps) {
    const authState: AuthState = useSelector(selectAuthState);
    const location = useLocation();
    const dispatch = useDispatch();
-   const [wsContext, setWsContext] = useState<WsContext>(defaultWsContextValue);
+
+   const socketState: SocketState = useSelector(selectSocketState);
 
    useEffect(() => {
       if (authState.loggedIn && authState.user) {
-
-         const stompClient: Client = over(new SockJS('/socket'));
-         stompClient.connect({"Identity": authState.user.id}, frame => {
+         socketState.client.connect({"Identity": authState.user.id}, frame => {
             console.log("WS Client connected: ", frame);
 
-            stompClient.subscribe(Topic.NOTIFICATIONS, (message: Message) => {
+            socketState.client.subscribe(Topic.NOTIFICATIONS, (message: Message) => {
                const notificationResponse: Response<Notification> = JSON.parse(message.body).body;
                const {message: notificationMessage, type, userId} = notificationResponse.payload;
 
@@ -54,37 +47,58 @@ export default function PrivateRoute({children}: PrivateRouteProps) {
             })
          });
 
-         const chatStompClient: Client = over(new SockJS('/chatSocket'));
-         chatStompClient.connect({"Identity": authState.user.id}, frame => {
+         socketState.chatClient.connect({"Identity": authState.user.id}, (frame) => {
             console.log("Chat WS Client connected: ", frame);
-         });
 
-         setWsContext({client: stompClient, chatClient: chatStompClient});
-      } else if (!authState.loggedIn) {
-         const {client, chatClient} = wsContext;
+            socketState.chatClient.subscribe(`/user${Topic.CHAT}`, (message: Message) => {
+               const chatMessageResponse: Response<ChatMessage> = JSON.parse(message.body).body;
+               const {id: messageId, senderId, receiverId, message: content} = chatMessageResponse.payload;
 
-         if (client) {
-            client.disconnect(() => console.log("WS Client disconnected."));
-         }
+               dispatch(pushMessage(chatMessageResponse.payload));
 
-         if (chatClient) {
-            chatClient.disconnect(() => {
-               console.log("Chat WS Client disconnected.")
+               // Todo: check if can move the users to redux as well and format the message
+               if (!isOnPath(AppRoutes.CHATS) && receiverId === authState?.user?.id) {
+                  toast.success(`New message: ${content}`, infoToastOptions());
+               }
+
+               if (isOnPath(AppRoutes.CHATS) && receiverId === authState?.user?.id) {
+                  socketState.chatClient.send(WebsocketPaths.acknowledgeMessage, {}, JSON.stringify({
+                     messageId: messageId,
+                     acknowledgedBy: receiverId,
+                     target: senderId
+                  }));
+               }
             });
-         }
+
+            socketState.chatClient.subscribe(`/user${Topic.CHAT_NOTIFICATIONS}`, (message: Message) => {
+               const notificationResponse: Response<ChatNotification> = JSON.parse(message.body).body;
+               const {type, senderId} = notificationResponse.payload;
+
+               dispatch(setTypingMap({
+                  ...socketState.typingMap,
+                  [senderId]: type === ChatNotificationType.START_TYPING,
+               }));
+            });
+
+            socketState.chatClient.subscribe(`/user${Topic.ACK_MESSAGE}`, (message: Message) => {
+               const ackResponse: Response<MessageAcknowledgement> = JSON.parse(message.body).body;
+               const {messageId} = ackResponse.payload;
+
+               dispatch(setLastReadMessage(messageId));
+            });
+         })
+      } else if (!authState.loggedIn) {
+         socketState.client.disconnect(() => console.log("WS Client disconnected"));
+         socketState.chatClient.disconnect(() => console.log("Chat WS Client disconnected"));
 
          dispatch(endSession());
       }
-
-      return () => {
-      };
-   }, [authState, dispatch]);
+   }, [authState.loggedIn, authState.user, dispatch, socketState.chatClient, socketState.client, socketState.typingMap]);
 
    return (
-      <WsContext.Provider value={wsContext}>
-         {authState.loggedIn ?
-            <>{children}</> :
-            <Navigate to={`${AppRoutes.LOGIN}?from=${location.pathname}${location.search}`} replace={true}/>
-         }
-      </WsContext.Provider>);
+      authState.loggedIn ?
+         <>{children}</> :
+         <Navigate to={`${AppRoutes.LOGIN}?from=${location.pathname}${location.search}`} replace={true}/>
+   );
 };
+

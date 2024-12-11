@@ -3,7 +3,9 @@ package org.andreiz0r.core.messaging;
 public enum Topic {
     CHAT("chat"),
     CHAT_NOTIFICATION("chatNotification"),
-    NOTIFICATIONS("notifications");
+    NOTIFICATIONS("notifications"),
+    ACK_MESSAGE("ackMessage"),
+    ;
 
     private final String name;
 

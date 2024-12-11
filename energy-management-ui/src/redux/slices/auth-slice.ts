@@ -3,7 +3,6 @@ import {Constants} from "@/utils/constants.ts";
 import Cookies from "js-cookie";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {RootState} from "../store.ts";
-import {Topic} from "@/models/transfer.ts";
 
 export interface AuthState {
    user: User | null;
@@ -47,16 +46,12 @@ export const authSlice = createSlice({
          localStorage.setItem(Constants.USER, JSON.stringify(state.user));
       },
 
-      subscribe: (state, action: PayloadAction<Topic>) => {
-         state.subscriptions.push(action.payload);
-      }
    },
 });
 
 export const {
    startSession,
    endSession,
-   subscribe
 } = authSlice.actions;
 export const selectAuthState = (state: RootState) => state.auth as AuthState;
 export default authSlice.reducer;
